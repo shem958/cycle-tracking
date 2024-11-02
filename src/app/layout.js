@@ -1,8 +1,20 @@
-// src/app/layout.js
-
 import Navbar from "./components/Navbar";
 import ThemeToggle from "./components/ThemeToggle"; // Import the ThemeToggle component
 import "./styles/globals.css";
+
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
 
 export const metadata = {
   title: "Cycle Tracking App",
@@ -21,7 +33,10 @@ function ErrorBoundary({ children }) {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      className={`${outfit.variable} ${plusJakartaSans.variable}`}
+    >
       <body>
         <Navbar />
         <div className="flex justify-between items-center p-4">
