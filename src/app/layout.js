@@ -1,8 +1,8 @@
 import Navbar from "./components/Navbar";
-import ThemeToggle from "./components/ThemeToggle"; // Import the ThemeToggle component
+import ThemeToggle from "./components/ThemeToggle";
 import "./styles/globals.css";
 
-import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans, Poppins } from "next/font/google";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -13,6 +13,13 @@ const outfit = Outfit({
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-plus-jakarta-sans",
+  display: "swap",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "700"], // Define specific weights
+  variable: "--font-poppins",
   display: "swap",
 });
 
@@ -38,10 +45,10 @@ export default function RootLayout({ children }) {
       className={`${outfit.variable} ${plusJakartaSans.variable}`}
     >
       <body>
-        <Navbar />
+        <Navbar className={poppins.variable} /> {/* Apply Poppins here */}
         <div className="flex justify-between items-center p-4">
           <h1 className="text-2xl font-semibold">Cycle Tracker</h1>
-          <ThemeToggle /> {/* Add ThemeToggle here */}
+          <ThemeToggle />
         </div>
         <main className="container mx-auto px-4">
           <ErrorBoundary>{children}</ErrorBoundary>

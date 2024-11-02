@@ -17,17 +17,6 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plus-jakarta-sans), Arial, Helvetica, sans-serif; /* Update to use Plus Jakarta Sans */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
-
-/* Remove these as we're using Tailwind's dark mode */
-/* body.dark {
-  background-color: #1A1523;
-  color: #E2E8F0;
-}
-
-body.light {
-  background-color: #FFF0F3;
-  color: #2D3748;
-} */

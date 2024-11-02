@@ -12,6 +12,7 @@ const config: Config = {
       fontFamily: {
         body: ['var(--font-plus-jakarta-sans)', 'system-ui', 'sans-serif'],
         display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+        navbar: ['var(--font-poppins)', 'system-ui', 'sans-serif'], // Add Poppins for Navbar
       },
       colors: {
         background: "var(--background)",
