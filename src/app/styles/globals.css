@@ -1,19 +1,17 @@
-/* src/styles/globals.css */
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
 :root {
-  --background: #ffffff; /* Light mode background */
-  --foreground: #171717; /* Light mode text color */
+  /* Light mode variables */
+  --background: #FFF0F3;
+  --foreground: #2D3748;
 }
 
-/* Styles for dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a; /* Dark mode background */
-    --foreground: #ededed; /* Dark mode text color */
-  }
+/* Only change custom properties in dark mode, not classes */
+:root.dark {
+  --background: #1A1523;
+  --foreground: #E2E8F0;
 }
 
 body {
@@ -23,14 +21,13 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.dark {
-  background-color: #1A1523; /* Dark mode background */
-  color: #E2E8F0; /* Dark mode text color */
+/* Remove these as we're using Tailwind's dark mode */
+/* body.dark {
+  background-color: #1A1523;
+  color: #E2E8F0;
 }
 
 body.light {
-  background-color: #FFF0F3; /* Light mode background */
-  color: #2D3748; /* Light mode text color */
-}
-
-/* Additional styles can be added below */
+  background-color: #FFF0F3;
+  color: #2D3748;
+} */

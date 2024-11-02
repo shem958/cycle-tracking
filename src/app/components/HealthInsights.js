@@ -1,4 +1,3 @@
-// This component will provide health insights based on the logged data.
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -17,17 +16,31 @@ const HealthInsights = ({ cycles = [] }) => {
   const insights = calculateInsights();
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+    <div className="flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full">
+      <h2 className="text-xl font-semibold mb-6 text-foreground">
         Health Insights
       </h2>
-      <p className="text-gray-800 dark:text-gray-200">
-        <strong>Total Cycles Logged:</strong> {insights.totalCycles}
-      </p>
-      <p className="text-gray-800 dark:text-gray-200">
-        <strong>Average Cycle Length:</strong>{" "}
-        {insights.averageLength.toFixed(2)} days
-      </p>
+      <div className="space-y-4">
+        <div
+          className="p-4 border border-light-text/20 dark:border-dark-text/20 rounded-md 
+                    bg-light-bg/50 dark:bg-dark-bg/50 
+                    transition-colors duration-300 ease"
+        >
+          <h3 className="text-lg font-medium text-foreground mb-2">
+            Cycle Summary
+          </h3>
+          <p className="text-foreground transition-colors duration-300 ease mb-3">
+            <strong>Total Cycles Logged:</strong>{" "}
+            <span className="text-foreground/90">{insights.totalCycles}</span>
+          </p>
+          <p className="text-foreground transition-colors duration-300 ease">
+            <strong>Average Cycle Length:</strong>{" "}
+            <span className="text-foreground/90">
+              {insights.averageLength.toFixed(2)} days
+            </span>
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
