@@ -1,16 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* src/styles/globals.css */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff; /* Light mode background */
+  --foreground: #171717; /* Light mode text color */
 }
 
+/* Styles for dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0a0a0a; /* Dark mode background */
+    --foreground: #ededed; /* Dark mode text color */
   }
 }
 
@@ -18,4 +20,17 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+body.dark {
+  background-color: #1A1523; /* Dark mode background */
+  color: #E2E8F0; /* Dark mode text color */
+}
+
+body.light {
+  background-color: #FFF0F3; /* Light mode background */
+  color: #2D3748; /* Light mode text color */
+}
+
+/* Additional styles can be added below */
