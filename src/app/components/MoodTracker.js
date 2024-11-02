@@ -1,4 +1,3 @@
-// This component will allow users to log their mood daily
 import { useState } from "react";
 
 const MoodTracker = ({ onLogMood }) => {
@@ -17,23 +16,38 @@ const MoodTracker = ({ onLogMood }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+      className="bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease"
     >
-      <div className="mb-4">
-        <label className="block mb-2 text-gray-800 dark:text-gray-200">
-          Log Mood:
+      <h2 className="text-xl font-semibold mb-4 text-foreground">
+        Mood Tracker
+      </h2>
+      <div className="mb-6">
+        <label className="block mb-2 text-foreground">
+          How are you feeling today?
           <input
             type="text"
             value={mood}
             onChange={handleChange}
             required
-            className="w-full p-2 border rounded-md focus:outline-none focus:ring focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200"
+            placeholder="Enter your mood..."
+            className="w-full mt-2 p-3 rounded-md
+                     bg-light-bg/50 dark:bg-dark-bg/50
+                     border border-light-text/20 dark:border-dark-text/20
+                     text-foreground placeholder-foreground/50
+                     focus:outline-none focus:ring-2 focus:ring-light-text/30 dark:focus:ring-dark-text/30
+                     transition-colors duration-300 ease"
           />
         </label>
       </div>
       <button
         type="submit"
-        className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-200"
+        className="w-full p-3 rounded-md
+                   bg-light-bg dark:bg-dark-bg
+                   text-foreground
+                   border border-light-text/20 dark:border-dark-text/20
+                   hover:bg-light-bg/80 dark:hover:bg-dark-bg/80
+                   transition-all duration-300 ease
+                   font-medium"
       >
         Log Mood
       </button>
