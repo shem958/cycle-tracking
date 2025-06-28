@@ -44,12 +44,7 @@ const CycleForm = () => {
 
   return (
     <div className="min-h-screen w-full bg-pink-50 dark:bg-gray-900 p-6">
-      <div className="max-w-4xl mx-auto text-center mb-8">
-        <h1 className="text-gray-700 dark:text-gray-200 text-xl">
-          Track your cycles accurately, including irregular patterns, and gain
-          valuable health insights.
-        </h1>
-      </div>
+      <div className="max-w-4xl mx-auto text-center mb-8"></div>
 
       <form
         onSubmit={handleSubmit}
