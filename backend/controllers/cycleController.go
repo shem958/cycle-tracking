@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
-	"github.com/shem958/cycle-backend/models"
+
+	"github.com/gin-gonic/gin"
 	"github.com/shem958/cycle-backend/config"
+	"github.com/shem958/cycle-backend/models"
 )
 
 func GetCycles(c *gin.Context) {
