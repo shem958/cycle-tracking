@@ -1,92 +1,51 @@
-class CyclePredictor {
-  constructor(data) {
-    // Initialize with the provided dataset
-    this.data = data; // Array of objects {features: [...]. label: ...}
-    this.model = this.initializeModel(); // Placeholder for the model
-    this.learningRate = 0.01; // Define a learning rate
+class EnhancedCyclePredictor {
+  constructor(history = []) {
+    this.history = history; // List of { startDate, length }
   }
 
-  // Initialize the model parameters
-  initializeModel() {
-    return {
-      theta: [], // Parameters for the model
-    };
-  }
+  // Predict the next period start
+  predictNextCycle() {
+    if (this.history.length < 2) return null;
 
-  // Train the model using the dataset
-  train() {
-    const N = this.data.length; // Number of data points
-    console.log(`Training with ${N} data points.`); // Example usage of N
-    for (let epoch = 0; epoch < 1000; epoch++) {
-      let gradients = this.calculateGradients();
-      this.updateParameters(gradients);
-    }
-  }
-
-  // Calculate the gradients for the loss function
-  calculateGradients() {
-    const gradients = {}; // Placeholder for gradients
-    const N = this.data.length;
-
-    // Initialize gradients
-    this.model.theta.forEach((_, index) => {
-      gradients[index] = 0;
-    });
-
-    // Calculate gradients based on loss
-    this.data.forEach(({ features, label }) => {
-      const prediction = this.predict(features);
-      const error = label - prediction;
-
-      this.model.theta.forEach((_, index) => {
-        gradients[index] += (-2 / N) * error * features[index]; // Gradient descent
-      });
-    });
-    return gradients;
-  }
-
-  // Update the model parameters using gradients
-  updateParameters(gradients) {
-    this.model.theta.forEach((theta, index) => {
-      this.model.theta[index] = theta - this.learningRate * gradients[index]; // Update rule
-    });
-  }
-
-  // Predict the outcome for a new feature vector
-  predict(features) {
-    return features.reduce(
-      (sum, feature, index) => sum + feature * this.model.theta[index],
-      0
+    // Sort by date
+    const sorted = [...this.history].sort(
+      (a, b) => new Date(a.startDate) - new Date(b.startDate)
     );
-  }
 
-  // Function to predict the next cycle
-  predictNextCycle(newFeatures) {
-    const predictedValue = this.predict(newFeatures);
+    const lengths = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = new Date(sorted[i - 1].startDate);
+      const curr = new Date(sorted[i].startDate);
+      lengths.push((curr - prev) / (1000 * 60 * 60 * 24));
+    }
+
+    const avgLength = lengths.reduce((a, b) => a + b) / lengths.length;
+    const stdDev = Math.sqrt(
+      lengths.map((x) => Math.pow(x - avgLength, 2)).reduce((a, b) => a + b) /
+        lengths.length
+    );
+
+    const lastStart = new Date(sorted[sorted.length - 1].startDate);
+    const predicted = new Date(
+      lastStart.getTime() + avgLength * 24 * 60 * 60 * 1000
+    );
+
     return {
-      predictedStartDate: predictedValue, // This can be adjusted based on your context
-      confidenceInterval: this.calculateConfidenceInterval(predictedValue), // Calculate CI
+      predictedStartDate: predicted.toISOString().split("T")[0],
+      confidenceInterval: [
+        new Date(predicted.getTime() - stdDev * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+        new Date(predicted.getTime() + stdDev * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+      ],
+      averageCycleLength: avgLength.toFixed(1),
+      irregularityIndex: stdDev.toFixed(2),
     };
   }
 
-  // Calculate confidence interval based on the predictions
-  calculateConfidenceInterval(mu) {
-    const z = 1.96; // For 95% confidence
-    const sigma = this.calculateStandardDeviation(); // Corrected function name
-    return [mu - z * sigma, mu + z * sigma]; // Return the interval
-  }
-
-  // Placeholder function for calculating standard deviation
-  calculateStandardDeviation() {
-    // Implement your standard deviation calculation based on your data
-    return 1; // Placeholder
-  }
-
-  // Update dataset with new data
-  updateData(newData) {
-    this.data.push(newData);
-    this.train(); // Retrain the model with updated dataset
+  addCycle(cycleEntry) {
+    this.history.push(cycleEntry);
   }
 }
-
-export default CyclePredictor;
