@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/shem958/cycle-backend/controllers"
 	"github.com/shem958/cycle-backend/config"
+	"github.com/shem958/cycle-backend/controllers"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	// CORS middleware
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"}, // or your frontend domain
+		AllowOrigins:     []string{"http://localhost:3000"}, // your frontend domain
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
