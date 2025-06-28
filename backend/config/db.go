@@ -3,12 +3,12 @@ package config
 import (
 	"log"
 	"github.com/joho/godotenv"
-	"os"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"github.com/shem958/cycle-backend/models"
 )
+
 
 var DB *gorm.DB
 
