@@ -24,7 +24,10 @@ const CycleForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(cycleData),
+        body: JSON.stringify({
+          ...cycleData,
+          length: Number(cycleData.length),
+        }),
       });
 
       if (response.ok) {
