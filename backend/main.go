@@ -20,6 +20,8 @@ func main() {
 	config.ConnectDB()
 	routes.RegisterCycleRoutes(r)
 	routes.RegisterAuthRoutes(r)
+	routes.RegisterUserRoutes(r)
+
 
 
 	r.Run(":8080")
