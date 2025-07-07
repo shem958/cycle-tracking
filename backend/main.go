@@ -10,20 +10,15 @@ import (
 func main() {
 	r := gin.Default()
 
-	// Setup CORS
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
 	}))
 
-	// Connect to DB
 	config.ConnectDB()
+	routes.RegisterCycleRoutes(r)
 
-	// Register API routes
-	routes.RegisterRoutes(r)
-
-	// Run the server
 	r.Run(":8080")
 }
