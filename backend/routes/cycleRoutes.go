@@ -1,4 +1,3 @@
-
 package routes
 
 import (
@@ -10,12 +9,13 @@ import (
 func RegisterCycleRoutes(router *gin.Engine) {
 	api := router.Group("/api")
 
-	api.GET("/cycles", controllers.GetCycles) // public route
-
-	protected := api.Group("/")
+	// Apply authentication to all /api/cycles routes
+	protected := api.Group("/cycles")
 	protected.Use(middleware.AuthMiddleware())
-
-	protected.POST("/cycles", controllers.AddCycle)
-	protected.PUT("/cycles/:id", controllers.UpdateCycle)
-	protected.DELETE("/cycles/:id", controllers.DeleteCycle)
+	{
+		protected.GET("", controllers.GetCycles)
+		protected.POST("", controllers.AddCycle)
+		protected.PUT("/:id", controllers.UpdateCycle)
+		protected.DELETE("/:id", controllers.DeleteCycle)
+	}
 }
