@@ -1,13 +1,12 @@
-class EnhancedCyclePredictor {
+// src/app/utils/cyclePredictor.js
+export class EnhancedCyclePredictor {
   constructor(history = []) {
     this.history = history; // List of { startDate, length }
   }
 
-  // Predict the next period start
   predictNextCycle() {
     if (this.history.length < 2) return null;
 
-    // Sort by date
     const sorted = [...this.history].sort(
       (a, b) => new Date(a.startDate) - new Date(b.startDate)
     );

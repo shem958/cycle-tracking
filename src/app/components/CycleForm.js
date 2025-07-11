@@ -15,11 +15,19 @@ const CycleForm = () => {
 
   const fetchCycles = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/cycles");
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8080/api/cycles", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Unauthorized");
+
       const data = await res.json();
       setCycles(data);
     } catch (error) {
-      console.error("Failed to fetch cycles:", error);
+      console.error("Failed to fetch cycles:", error.message);
     }
   };
 
@@ -41,10 +49,12 @@ const CycleForm = () => {
     const method = isEditing ? "PUT" : "POST";
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(cycleData),
       });
@@ -69,7 +79,7 @@ const CycleForm = () => {
       symptoms: cycle.symptoms,
       mood: cycle.mood,
     });
-    setEditId(cycle.ID); // Ensure backend sends "ID"
+    setEditId(cycle.ID);
     setIsEditing(true);
   };
 
@@ -77,8 +87,12 @@ const CycleForm = () => {
     if (!confirm("Are you sure you want to delete this entry?")) return;
 
     try {
+      const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:8080/api/cycles/${id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (res.ok) {
