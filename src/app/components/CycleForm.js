@@ -1,10 +1,10 @@
 "use client";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { Calendar, Activity, Heart, Clock, Trash2, Pencil } from "lucide-react";
-import { AppContext } from "../context/AppContext"; // Import global context
+import { useAppContext } from "../context/AppContext";
 
 const CycleForm = () => {
-  const { cycles, setCycles } = useContext(AppContext); // Use global cycles state
+  const { cycles, setCycles } = useAppContext();
   const [cycleData, setCycleData] = useState({
     startDate: "",
     length: "",
