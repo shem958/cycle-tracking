@@ -46,7 +46,7 @@ const CycleForm = () => {
     e.preventDefault();
     const url = isEditing
       ? `http://localhost:8080/api/cycles/${editId}`
-      : "http://localhost:8080/api/cycles";
+      : "http://localhost:8080/api/cycles/";
 
     const method = isEditing ? "PUT" : "POST";
 

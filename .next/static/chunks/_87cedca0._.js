@@ -64,7 +64,7 @@ const CycleForm = ()=>{
     };
     const handleSubmit = async (e)=>{
         e.preventDefault();
-        const url = isEditing ? `http://localhost:8080/api/cycles/${editId}` : "http://localhost:8080/api/cycles";
+        const url = isEditing ? `http://localhost:8080/api/cycles/${editId}` : "http://localhost:8080/api/cycles/";
         const method = isEditing ? "PUT" : "POST";
         try {
             const token = localStorage.getItem("token");
