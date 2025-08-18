@@ -1,15 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Calendar, Activity, Heart, Clock, Trash2, Pencil } from "lucide-react";
+import { AppContext } from "../context/AppContext"; // Import global context
 
 const CycleForm = () => {
+  const { cycles, setCycles } = useContext(AppContext); // Use global cycles state
   const [cycleData, setCycleData] = useState({
     startDate: "",
     length: "",
     symptoms: "",
     mood: "",
   });
-  const [cycles, setCycles] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
@@ -63,7 +64,7 @@ const CycleForm = () => {
         setCycleData({ startDate: "", length: "", symptoms: "", mood: "" });
         setIsEditing(false);
         setEditId(null);
-        fetchCycles();
+        fetchCycles(); // Refresh global cycles
       } else {
         console.error("Failed to save cycle");
       }
@@ -96,7 +97,7 @@ const CycleForm = () => {
       });
 
       if (res.ok) {
-        fetchCycles();
+        fetchCycles(); // Refresh global cycles
       } else {
         console.error("Failed to delete entry");
       }

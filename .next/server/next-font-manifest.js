@@ -1,1 +1,1 @@
-self.__NEXT_FONT_MANIFEST='{"pages":{},"app":{"/home/shercy/cycle-tracking/src/app/layout":["static/media/c7f848bed9dd25a3-s.p.woff2","static/media/b957ea75a84b6ea7-s.p.woff2","static/media/eafabf029ad39a43-s.p.woff2","static/media/636a5ac981f94f8b-s.p.woff2"]},"appUsingSizeAdjust":true,"pagesUsingSizeAdjust":false}';
+self.__NEXT_FONT_MANIFEST="{\n  \"app\": {},\n  \"appUsingSizeAdjust\": false,\n  \"pages\": {},\n  \"pagesUsingSizeAdjust\": false\n}"
