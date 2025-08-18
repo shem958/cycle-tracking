@@ -5,7 +5,6 @@ import { useAppContext } from "../context/AppContext";
 const OvulationTracker = () => {
   const { cycles } = useAppContext();
 
-  // Get the most recent cycle
   const latestCycle = useMemo(() => {
     if (!cycles || cycles.length === 0) return null;
     return cycles[cycles.length - 1];
