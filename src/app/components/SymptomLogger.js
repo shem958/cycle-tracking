@@ -1,4 +1,6 @@
+"use client";
 import { useState } from "react";
+import { useAppContext } from "../context/AppContext";
 
 const CommonSymptoms = [
   "Cramps",
@@ -11,9 +13,10 @@ const CommonSymptoms = [
   "Nausea",
 ];
 
-const SymptomLogger = ({ onLogSymptom }) => {
+const SymptomLogger = () => {
   const [symptom, setSymptom] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { addSymptom } = useAppContext(); // Push symptoms to context
 
   const handleChange = (e) => {
     setSymptom(e.target.value);
@@ -22,11 +25,11 @@ const SymptomLogger = ({ onLogSymptom }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (symptom.trim()) {
-      onLogSymptom(symptom);
-      setSymptom(""); // Reset form
-      setShowSuggestions(false);
-    }
+    if (!symptom.trim()) return;
+
+    addSymptom(symptom); // Save to context
+    setSymptom("");
+    setShowSuggestions(false);
   };
 
   const handleSuggestionClick = (suggestion) => {
@@ -58,7 +61,6 @@ const SymptomLogger = ({ onLogSymptom }) => {
             />
           </label>
 
-          {/* Suggestions dropdown */}
           {showSuggestions && symptom && (
             <div className="absolute z-10 w-full mt-1 bg-background border border-light-text/20 dark:border-dark-text/20 rounded-md shadow-lg">
               {CommonSymptoms.filter((s) =>
