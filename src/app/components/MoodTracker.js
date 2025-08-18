@@ -1,7 +1,10 @@
+"use client";
 import { useState } from "react";
+import { useAppContext } from "../context/AppContext";
 
-const MoodTracker = ({ onLogMood }) => {
+const MoodTracker = () => {
   const [mood, setMood] = useState("");
+  const { addMood } = useAppContext(); // Push moods to context
 
   const handleChange = (e) => {
     setMood(e.target.value);
@@ -9,7 +12,9 @@ const MoodTracker = ({ onLogMood }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogMood(mood);
+    if (!mood.trim()) return;
+
+    addMood(mood); // Save to context
     setMood(""); // Reset form
   };
 
