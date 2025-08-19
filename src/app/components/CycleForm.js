@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Calendar, Activity, Heart, Clock, Trash2, Pencil } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { useForm } from "react-hook-form";
@@ -27,6 +27,48 @@ const CycleForm = () => {
     "Nausea",
   ];
 
+  const submitCycle = useCallback(
+    async (cycleData, method, id) => {
+      try {
+        const token = localStorage.getItem("token");
+        const url = id
+          ? `http://localhost:8080/api/cycles/${id}`
+          : "http://localhost:8080/api/cycles";
+        const res = await fetch(url, {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(cycleData),
+        });
+
+        if (res.ok) {
+          resetForm();
+          fetchCycles();
+        } else {
+          throw new Error("Failed to save cycle");
+        }
+      } catch (error) {
+        console.error("Submit error:", error);
+      }
+    },
+    [fetchCycles]
+  ); // Add fetchCycles as a dependency
+
+  const syncPendingCycles = useCallback(
+    async (db) => {
+      const tx = db.transaction("pendingCycles", "readwrite");
+      const store = tx.objectStore("pendingCycles");
+      const pending = await store.getAll();
+      for (const cycle of pending) {
+        await submitCycle(cycle, cycle.id ? "PUT" : "POST", cycle.id);
+        await store.delete(cycle.id);
+      }
+    },
+    [submitCycle]
+  ); // Add submitCycle as a dependency
+
   // Initialize IndexedDB
   useEffect(() => {
     const initDB = async () => {
@@ -41,19 +83,9 @@ const CycleForm = () => {
       }
     };
     initDB();
-  }, []);
+  }, [syncPendingCycles]);
 
-  const syncPendingCycles = async (db) => {
-    const tx = db.transaction("pendingCycles", "readwrite");
-    const store = tx.objectStore("pendingCycles");
-    const pending = await store.getAll();
-    for (const cycle of pending) {
-      await submitCycle(cycle, cycle.id ? "PUT" : "POST", cycle.id);
-      await store.delete(cycle.id);
-    }
-  };
-
-  const handleSubmit = async (data) => {
+  const onSubmit = async (data) => {
     const cycleData = {
       startDate: data.startDate,
       length: parseInt(data.length),
@@ -72,32 +104,6 @@ const CycleForm = () => {
     }
 
     await submitCycle(cycleData, isEditing ? "PUT" : "POST", editId);
-  };
-
-  const submitCycle = async (cycleData, method, id) => {
-    try {
-      const token = localStorage.getItem("token");
-      const url = id
-        ? `http://localhost:8080/api/cycles/${id}`
-        : "http://localhost:8080/api/cycles";
-      const res = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(cycleData),
-      });
-
-      if (res.ok) {
-        resetForm();
-        fetchCycles();
-      } else {
-        throw new Error("Failed to save cycle");
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-    }
   };
 
   const handleEdit = (cycle) => {
@@ -146,7 +152,7 @@ const CycleForm = () => {
       </div>
 
       <form
-        onSubmit={handleSubmit(handleSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto p-8 rounded-3xl bg-[#1B2433] shadow-xl"
       >
         <h2 className="text-3xl font-semibold mb-8 text-white text-center">
