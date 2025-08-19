@@ -13,6 +13,7 @@ const Navbar = () => {
 
   const navLinks = [
     { path: "/", label: "Home" },
+    { path: "/cycles", label: "Cycle Tracking" },
     { path: "/history", label: "Cycle History" },
     { path: "/insights", label: "Health Insights" },
     { path: "/ovulation", label: "Ovulation Tracker" },
