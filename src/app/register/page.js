@@ -35,7 +35,7 @@ export default function RegisterPage() {
       } else {
         setError(result.message || "Registration failed");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong");
     }
   };
