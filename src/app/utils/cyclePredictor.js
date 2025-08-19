@@ -1,4 +1,3 @@
-// src/app/utils/cyclePredictor.js
 export class EnhancedCyclePredictor {
   constructor(history = []) {
     this.history = history; // List of { startDate, length }
@@ -29,6 +28,13 @@ export class EnhancedCyclePredictor {
       lastStart.getTime() + avgLength * 24 * 60 * 60 * 1000
     );
 
+    const fertileStart = new Date(
+      lastStart.getTime() + (avgLength - 14 - 5) * 24 * 60 * 60 * 1000
+    );
+    const fertileEnd = new Date(
+      lastStart.getTime() + (avgLength - 14 + 5) * 24 * 60 * 60 * 1000
+    );
+
     return {
       predictedStartDate: predicted.toISOString().split("T")[0],
       confidenceInterval: [
@@ -41,6 +47,10 @@ export class EnhancedCyclePredictor {
       ],
       averageCycleLength: avgLength.toFixed(1),
       irregularityIndex: stdDev.toFixed(2),
+      fertileWindow: [
+        fertileStart.toISOString().split("T")[0],
+        fertileEnd.toISOString().split("T")[0],
+      ],
     };
   }
 
