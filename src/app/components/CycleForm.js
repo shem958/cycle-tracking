@@ -53,8 +53,8 @@ const CycleForm = () => {
         console.error("Submit error:", error);
       }
     },
-    [fetchCycles]
-  ); // Add fetchCycles as a dependency
+    [fetchCycles, resetForm]
+  ); // Add resetForm here
 
   const syncPendingCycles = useCallback(
     async (db) => {
