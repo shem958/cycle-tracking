@@ -2,56 +2,84 @@
 import { useEffect, useState } from "react";
 import { Calendar, Activity, Heart, Clock, Trash2, Pencil } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
+import { useForm } from "react-hook-form";
+import { openDB } from "idb";
 
 const CycleForm = () => {
-  const { cycles, setCycles } = useAppContext();
-  const [cycleData, setCycleData] = useState({
-    startDate: "",
-    length: "",
-    symptoms: "",
-    mood: "",
-  });
+  const { cycles, setCycles, fetchCycles } = useAppContext();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  const fetchCycles = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8080/api/cycles", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+  // Predefined options
+  const moodOptions = ["Happy", "Sad", "Anxious", "Irritable", "Calm"];
+  const symptomOptions = [
+    "Cramps",
+    "Fatigue",
+    "Headache",
+    "Bloating",
+    "Nausea",
+  ];
+
+  // Initialize IndexedDB
+  useEffect(() => {
+    const initDB = async () => {
+      const db = await openDB("CycleTrackerDB", 1, {
+        upgrade(db) {
+          db.createObjectStore("pendingCycles", { keyPath: "id" });
         },
       });
+      // Sync pending cycles when online
+      if (navigator.onLine) {
+        syncPendingCycles(db);
+      }
+    };
+    initDB();
+  }, []);
 
-      if (!res.ok) throw new Error("Unauthorized");
-
-      const data = await res.json();
-      setCycles(data);
-    } catch (error) {
-      console.error("Failed to fetch cycles:", error.message);
+  const syncPendingCycles = async (db) => {
+    const tx = db.transaction("pendingCycles", "readwrite");
+    const store = tx.objectStore("pendingCycles");
+    const pending = await store.getAll();
+    for (const cycle of pending) {
+      await submitCycle(cycle, cycle.id ? "PUT" : "POST", cycle.id);
+      await store.delete(cycle.id);
     }
   };
 
-  useEffect(() => {
-    fetchCycles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleSubmit = async (data) => {
+    const cycleData = {
+      startDate: data.startDate,
+      length: parseInt(data.length),
+      symptoms: data.symptoms.join(","), // Convert array to comma-separated string
+      mood: data.mood,
+    };
+    const tempId = isEditing ? editId : Date.now();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCycleData({ ...cycleData, [name]: value });
+    if (!navigator.onLine) {
+      // Save to IndexedDB if offline
+      const db = await openDB("CycleTrackerDB", 1);
+      await db.put("pendingCycles", { ...cycleData, id: tempId });
+      setCycles([...cycles, { ...cycleData, ID: tempId }]);
+      resetForm();
+      return;
+    }
+
+    await submitCycle(cycleData, isEditing ? "PUT" : "POST", editId);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const url = isEditing
-      ? `http://localhost:8080/api/cycles/${editId}`
-      : "http://localhost:8080/api/cycles/";
-
-    const method = isEditing ? "PUT" : "POST";
-
+  const submitCycle = async (cycleData, method, id) => {
     try {
       const token = localStorage.getItem("token");
+      const url = id
+        ? `http://localhost:8080/api/cycles/${id}`
+        : "http://localhost:8080/api/cycles";
       const res = await fetch(url, {
         method,
         headers: {
@@ -62,12 +90,10 @@ const CycleForm = () => {
       });
 
       if (res.ok) {
-        setCycleData({ startDate: "", length: "", symptoms: "", mood: "" });
-        setIsEditing(false);
-        setEditId(null);
-        fetchCycles(); // Refresh global cycles
+        resetForm();
+        fetchCycles();
       } else {
-        console.error("Failed to save cycle");
+        throw new Error("Failed to save cycle");
       }
     } catch (error) {
       console.error("Submit error:", error);
@@ -75,12 +101,10 @@ const CycleForm = () => {
   };
 
   const handleEdit = (cycle) => {
-    setCycleData({
-      startDate: cycle.startDate,
-      length: cycle.length,
-      symptoms: cycle.symptoms,
-      mood: cycle.mood,
-    });
+    setValue("startDate", cycle.startDate);
+    setValue("length", cycle.length);
+    setValue("symptoms", cycle.symptoms ? cycle.symptoms.split(",") : []);
+    setValue("mood", cycle.mood);
     setEditId(cycle.ID);
     setIsEditing(true);
   };
@@ -98,13 +122,19 @@ const CycleForm = () => {
       });
 
       if (res.ok) {
-        fetchCycles(); // Refresh global cycles
+        fetchCycles();
       } else {
         console.error("Failed to delete entry");
       }
     } catch (error) {
       console.error("Delete error:", error);
     }
+  };
+
+  const resetForm = () => {
+    reset({ startDate: "", length: "", symptoms: [], mood: "" });
+    setIsEditing(false);
+    setEditId(null);
   };
 
   return (
@@ -116,7 +146,7 @@ const CycleForm = () => {
       </div>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(handleSubmit)}
         className="max-w-4xl mx-auto p-8 rounded-3xl bg-[#1B2433] shadow-xl"
       >
         <h2 className="text-3xl font-semibold mb-8 text-white text-center">
@@ -130,12 +160,16 @@ const CycleForm = () => {
               Start Date
               <input
                 type="date"
-                name="startDate"
-                value={cycleData.startDate}
-                onChange={handleChange}
-                required
+                {...register("startDate", {
+                  required: "Start date is required",
+                })}
                 className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
               />
+              {errors.startDate && (
+                <p className="text-red-500 text-sm">
+                  {errors.startDate.message}
+                </p>
+              )}
             </label>
 
             <label className="block text-sm text-gray-300">
@@ -143,41 +177,54 @@ const CycleForm = () => {
               Cycle Length (Days)
               <input
                 type="number"
-                name="length"
-                value={cycleData.length}
-                onChange={handleChange}
-                min="1"
-                max="99"
-                required
+                {...register("length", {
+                  required: "Cycle length is required",
+                  min: { value: 1, message: "Minimum 1 day" },
+                  max: { value: 99, message: "Maximum 99 days" },
+                })}
                 className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
               />
+              {errors.length && (
+                <p className="text-red-500 text-sm">{errors.length.message}</p>
+              )}
             </label>
 
             <label className="block text-sm text-gray-300">
               <Heart className="inline w-4 h-4 mr-2" />
               Mood
-              <input
-                type="text"
-                name="mood"
-                value={cycleData.mood}
-                onChange={handleChange}
-                placeholder="How are you feeling?"
+              <select
+                {...register("mood")}
                 className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
-              />
+              >
+                <option value="">Select mood</option>
+                {moodOptions.map((mood) => (
+                  <option key={mood} value={mood}>
+                    {mood}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
 
           <label className="block text-sm text-gray-300">
             <Activity className="inline w-4 h-4 mr-2" />
-            Symptoms & Notes
-            <textarea
-              name="symptoms"
-              value={cycleData.symptoms}
-              onChange={handleChange}
-              rows="12"
-              placeholder="Describe symptoms or notes..."
-              className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 resize-none"
-            />
+            Symptoms
+            <div className="mt-2 space-y-2">
+              {symptomOptions.map((symptom) => (
+                <label key={symptom} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    value={symptom}
+                    {...register("symptoms")}
+                    className="mr-2"
+                  />
+                  {symptom}
+                </label>
+              ))}
+            </div>
+            {errors.symptoms && (
+              <p className="text-red-500 text-sm">{errors.symptoms.message}</p>
+            )}
           </label>
         </div>
 
@@ -192,16 +239,7 @@ const CycleForm = () => {
           {isEditing && (
             <button
               type="button"
-              onClick={() => {
-                setIsEditing(false);
-                setEditId(null);
-                setCycleData({
-                  startDate: "",
-                  length: "",
-                  symptoms: "",
-                  mood: "",
-                });
-              }}
+              onClick={resetForm}
               className="text-sm text-gray-300 hover:text-white underline"
             >
               Cancel Edit
@@ -210,7 +248,6 @@ const CycleForm = () => {
         </div>
       </form>
 
-      {/* List of entries */}
       <div className="max-w-4xl mx-auto mt-12">
         <h3 className="text-xl font-medium mb-4 text-gray-800 dark:text-white">
           Past Entries
