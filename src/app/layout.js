@@ -1,9 +1,8 @@
 import Navbar from "./components/Navbar";
 import ThemeToggle from "./components/ThemeToggle";
 import "./styles/globals.css";
-
 import { Outfit, Plus_Jakarta_Sans, Poppins } from "next/font/google";
-import { AppProvider } from "./context/AppContext"; // Added context
+import { AppProvider } from "./context/AppContext";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -47,7 +46,7 @@ export default function RootLayout({ children }) {
     >
       <body>
         <AppProvider>
-          <Navbar className={poppins.variable} /> {/* Apply Poppins */}
+          <Navbar className={poppins.variable} />
           <div className="flex justify-between items-center p-4">
             <h1 className="text-2xl font-semibold">Cycle Tracker</h1>
             <ThemeToggle />
