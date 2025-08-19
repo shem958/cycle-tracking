@@ -2,8 +2,11 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAppContext } from "../context/AppContext";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
+  const { user, logout } = useAppContext();
   const pathname = usePathname();
 
   const isActiveLink = (path) => pathname === path;
@@ -13,6 +16,9 @@ const Navbar = () => {
     { path: "/history", label: "Cycle History" },
     { path: "/insights", label: "Health Insights" },
     { path: "/ovulation", label: "Ovulation Tracker" },
+    ...(user?.role === "admin"
+      ? [{ path: "/admin", label: "Admin Dashboard" }]
+      : []),
   ];
 
   return (
@@ -37,7 +43,38 @@ const Navbar = () => {
           </ul>
 
           <div className="flex items-center space-x-4">
-            {/* ThemeToggle component can be placed here */}
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="text-foreground/70 hover:text-foreground text-sm"
+                >
+                  {user.username}
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-foreground/70 hover:text-foreground text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-foreground/70 hover:text-foreground text-sm"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-foreground/70 hover:text-foreground text-sm"
+                >
+                  Register
+                </Link>
+              </>
+            )}
+            <ThemeToggle />
           </div>
         </div>
       </div>
