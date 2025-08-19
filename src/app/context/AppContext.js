@@ -27,7 +27,7 @@ export const AppProvider = ({ children }) => {
           role: decoded.role,
         });
         fetchUser(savedToken);
-      } catch (err) {
+      } catch {
         setToken(null);
         localStorage.removeItem("token");
       }
