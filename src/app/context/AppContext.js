@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
+import jwtDecode from "jwt-decode";
 
 // Create the context
 const AppContext = createContext();
@@ -17,8 +18,19 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
-      setToken(savedToken);
-      fetchUser(savedToken);
+      try {
+        const decoded = jwtDecode(savedToken);
+        setToken(savedToken);
+        setUser({
+          id: decoded.id,
+          username: decoded.username,
+          role: decoded.role,
+        });
+        fetchUser(savedToken);
+      } catch (err) {
+        setToken(null);
+        localStorage.removeItem("token");
+      }
     }
   }, []);
 
@@ -29,7 +41,7 @@ export const AppProvider = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setUser(data);
+        setUser((prev) => ({ ...prev, ...data }));
       } else {
         setToken(null);
         localStorage.removeItem("token");
@@ -58,6 +70,13 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    setCycles([]);
+    localStorage.removeItem("token");
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -73,6 +92,7 @@ export const AppProvider = ({ children }) => {
         setSymptoms,
         loading,
         fetchCycles,
+        logout,
       }}
     >
       {children}
