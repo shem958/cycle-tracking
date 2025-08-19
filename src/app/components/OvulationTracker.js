@@ -1,10 +1,18 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import { EnhancedCyclePredictor } from "../utils/cyclePredictor";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 
 const OvulationTracker = () => {
-  const { cycles } = useAppContext();
+  const { cycles, token } = useAppContext();
+  const [insights, setInsights] = useState({
+    ovulationDate: null,
+    fertileWindow: { start: "-", end: "-" },
+  });
 
+  // Client-side prediction fallback
   const latestCycle = useMemo(() => {
     if (!cycles || cycles.length === 0) return null;
     return cycles[cycles.length - 1];
@@ -34,7 +42,89 @@ const OvulationTracker = () => {
     };
   };
 
-  const fertileWindow = calculateFertileWindow();
+  // Fetch backend insights
+  useEffect(() => {
+    const fetchInsights = async () => {
+      if (!token || !navigator.onLine) {
+        // Fallback to client-side prediction if offline
+        const predictor = new EnhancedCyclePredictor(cycles);
+        const prediction = predictor.predictNextCycle();
+        if (prediction) {
+          setInsights({
+            ovulationDate: prediction.predictedStartDate
+              ? new Date(
+                  new Date(prediction.predictedStartDate).getTime() -
+                    14 * 24 * 60 * 60 * 1000
+                ).toLocaleDateString()
+              : "-",
+            fertileWindow: {
+              start: prediction.fertileWindow?.[0]
+                ? new Date(prediction.fertileWindow[0]).toLocaleDateString()
+                : "-",
+              end: prediction.fertileWindow?.[1]
+                ? new Date(prediction.fertileWindow[1]).toLocaleDateString()
+                : "-",
+            },
+          });
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch("http://localhost:8080/api/insights/cycle", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setInsights({
+            ovulationDate: data.nextPeriodPrediction
+              ? new Date(
+                  new Date(data.nextPeriodPrediction).getTime() -
+                    14 * 24 * 60 * 60 * 1000
+                ).toLocaleDateString()
+              : calculateOvulationDate(),
+            fertileWindow: data.fertileWindow?.length
+              ? {
+                  start: new Date(data.fertileWindow[0]).toLocaleDateString(),
+                  end: new Date(data.fertileWindow[1]).toLocaleDateString(),
+                }
+              : calculateFertileWindow(),
+          });
+        } else {
+          setInsights({
+            ovulationDate: calculateOvulationDate(),
+            fertileWindow: calculateFertileWindow(),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch insights:", err);
+        setInsights({
+          ovulationDate: calculateOvulationDate(),
+          fertileWindow: calculateFertileWindow(),
+        });
+      }
+    };
+    fetchInsights();
+  }, [token, cycles]);
+
+  // Calendar tile content
+  const tileContent = ({ date }) => {
+    if (!insights.fertileWindow.start || !insights.fertileWindow.end)
+      return null;
+    const start = new Date(insights.fertileWindow.start);
+    const end = new Date(insights.fertileWindow.end);
+    const ovulation = new Date(insights.ovulationDate);
+    if (
+      date.toDateString() >= start.toDateString() &&
+      date.toDateString() <= end.toDateString()
+    ) {
+      return <p className="text-pink-300 font-bold">●</p>;
+    }
+    if (date.toDateString() === ovulation.toDateString()) {
+      return <p className="text-pink-500 font-bold">★</p>;
+    }
+    return null;
+  };
 
   return (
     <div className="bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease">
@@ -58,7 +148,7 @@ const OvulationTracker = () => {
               Estimated Ovulation Date
             </h3>
             <p className="text-foreground text-lg font-semibold">
-              {calculateOvulationDate()}
+              {insights.ovulationDate}
             </p>
           </div>
 
@@ -74,14 +164,30 @@ const OvulationTracker = () => {
               <p className="text-foreground">
                 <span className="font-medium">Start:</span>{" "}
                 <span className="text-foreground/90">
-                  {fertileWindow.start}
+                  {insights.fertileWindow.start}
                 </span>
               </p>
               <p className="text-foreground">
                 <span className="font-medium">End:</span>{" "}
-                <span className="text-foreground/90">{fertileWindow.end}</span>
+                <span className="text-foreground/90">
+                  {insights.fertileWindow.end}
+                </span>
               </p>
             </div>
+          </div>
+
+          <div
+            className="p-4 border border-light-text/20 dark:border-dark-text/20 rounded-md 
+                      bg-light-bg/50 dark:bg-dark-bg/50 
+                      transition-colors duration-300 ease"
+          >
+            <h3 className="text-lg font-medium text-foreground mb-3">
+              Fertile Window Calendar
+            </h3>
+            <Calendar
+              tileContent={tileContent}
+              className="border-none bg-transparent"
+            />
           </div>
 
           <div
@@ -91,7 +197,7 @@ const OvulationTracker = () => {
                       transition-colors duration-300 ease"
           >
             <p>
-              Note: These dates are estimates based on your logged cycle. Your
+              Note: These dates are estimates based on your logged cycles. Your
               actual fertile window may vary. Consider tracking additional
               fertility signs for more accuracy.
             </p>
