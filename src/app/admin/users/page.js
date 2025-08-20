@@ -20,7 +20,7 @@ export default function AdminUsersPage() {
         } else {
           setError("Failed to fetch users");
         }
-      } catch (err) {
+      } catch {
         setError("Something went wrong");
       }
     };
@@ -44,7 +44,7 @@ export default function AdminUsersPage() {
       } else {
         setError("Failed to suspend user");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong");
     }
   };
@@ -66,7 +66,7 @@ export default function AdminUsersPage() {
       } else {
         setError("Failed to unsuspend user");
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong");
     }
   };
