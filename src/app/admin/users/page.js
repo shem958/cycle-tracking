@@ -71,6 +71,50 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleBan = async (userId) => {
+    if (!confirm("Are you sure you want to ban this user?")) return;
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/admin/users/${userId}/ban`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        setUsers(
+          users.map((u) => (u.id === userId ? { ...u, banned: true } : u))
+        );
+      } else {
+        setError("Failed to ban user");
+      }
+    } catch {
+      setError("Something went wrong");
+    }
+  };
+
+  const handleUnban = async (userId) => {
+    if (!confirm("Are you sure you want to unban this user?")) return;
+    try {
+      const res = await fetch(
+        `http://localhost:8080/api/admin/users/${userId}/unban`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        setUsers(
+          users.map((u) => (u.id === userId ? { ...u, banned: false } : u))
+        );
+      } else {
+        setError("Failed to unban user");
+      }
+    } catch {
+      setError("Something went wrong");
+    }
+  };
+
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
       <div className="p-6 max-w-4xl mx-auto">
@@ -89,7 +133,8 @@ export default function AdminUsersPage() {
                   </p>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     Role: {user.role} | Status:{" "}
-                    {user.suspended ? "Suspended" : "Active"}
+                    {user.suspended ? "Suspended" : "Active"} | Ban:{" "}
+                    {user.banned ? "Banned" : "Active"}
                   </p>
                 </div>
                 <div className="flex gap-3">
@@ -106,6 +151,21 @@ export default function AdminUsersPage() {
                       className="text-red-500 hover:text-red-700 text-sm"
                     >
                       Suspend
+                    </button>
+                  )}
+                  {user.banned ? (
+                    <button
+                      onClick={() => handleUnban(user.id)}
+                      className="text-green-500 hover:text-green-700 text-sm"
+                    >
+                      Unban
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleBan(user.id)}
+                      className="text-red-500 hover:text-red-700 text-sm"
+                    >
+                      Ban
                     </button>
                   )}
                 </div>
