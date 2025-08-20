@@ -4,6 +4,7 @@ import { useAppContext } from "@/app/context/AppContext";
 import { useForm } from "react-hook-form";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { user, setUser, token } = useAppContext();
@@ -15,11 +16,13 @@ export default function ProfilePage() {
   } = useForm();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [avatar, setAvatar] = useState(user?.avatar || "");
 
   useEffect(() => {
     if (user) {
       setValue("username", user.username);
       setValue("email", user.email);
+      setAvatar(user.avatar || "");
     }
   }, [user, setValue]);
 
@@ -49,11 +52,54 @@ export default function ProfilePage() {
     }
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      const res = await fetch("http://localhost:8080/api/profile/avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const updatedUser = await res.json();
+        setUser(updatedUser);
+        setAvatar(updatedUser.avatar);
+        setSuccess("Avatar updated successfully");
+        setError("");
+      } else {
+        const result = await res.json();
+        setError(result.message || "Failed to upload avatar");
+      }
+    } catch {
+      setError("Something went wrong");
+    }
+  };
+
   return (
     <ProtectedRoute allowedRoles={["user", "doctor", "admin"]}>
       <div className="p-6 max-w-4xl mx-auto">
         <h1 className="text-2xl font-semibold mb-4">Your Profile</h1>
         <div className="bg-background p-6 rounded-lg shadow-md">
+          <div className="flex flex-col items-center mb-6">
+            <Image
+              src={avatar || "/default-avatar.png"}
+              alt="Profile Avatar"
+              width={128}
+              height={128}
+              className="rounded-full object-cover mb-4"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-500 file:text-white hover:file:bg-pink-600"
+            />
+          </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label className="block text-sm text-gray-300">Username</label>
