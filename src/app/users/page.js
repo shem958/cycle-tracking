@@ -25,7 +25,7 @@ export default function UsersPage() {
         } else {
           setError("Failed to fetch users");
         }
-      } catch (err) {
+      } catch {
         setError("Something went wrong");
       }
     };
