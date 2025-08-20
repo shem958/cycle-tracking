@@ -17,14 +17,13 @@ const Navbar = () => {
     { path: "/history", label: "Cycle History" },
     { path: "/insights", label: "Health Insights" },
     { path: "/ovulation", label: "Ovulation Tracker" },
+    ...(user ? [{ path: "/pregnancy", label: "Pregnancy" }] : []),
+    ...(user ? [{ path: "/postpartum", label: "Postpartum" }] : []),
+    ...(user ? [{ path: "/checkups", label: "Checkups" }] : []),
     ...(user ? [{ path: "/profile", label: "Profile" }] : []),
-    ...(user ? [{ path: "/users", label: "Users" }] : []),
     ...(user?.role === "admin"
       ? [{ path: "/admin/users", label: "Admin: Users" }]
       : []),
-    ...(user ? [{ path: "/pregnancy", label: "Pregnancy" }] : []),
-    ...(user ? [{ path: "/symptoms", label: "Symptoms" }] : []),
-    ...(user ? [{ path: "/profile/[id]", label: "Public Profiles" }] : []), // Note: Dynamic route, adjust as needed
   ];
 
   return (
