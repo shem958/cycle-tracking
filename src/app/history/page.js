@@ -38,7 +38,7 @@ export default function HistoryPage() {
           {cycles.length > 0 ? (
             <CycleHistory cycles={cycles} />
           ) : (
-            <p className="text-gray-300 text-center">No cycles recorded yet.</p>
+            <p className="text-foreground/80">No cycles logged yet.</p>
           )}
         </div>
       </div>
