@@ -267,10 +267,34 @@ const Navbar = ()=>{
                 label: "Profile"
             }
         ] : [],
+        ...user ? [
+            {
+                path: "/users",
+                label: "Users"
+            }
+        ] : [],
         ...user?.role === "admin" ? [
             {
                 path: "/admin/users",
                 label: "Admin: Users"
+            }
+        ] : [],
+        ...user ? [
+            {
+                path: "/pregnancy",
+                label: "Pregnancy"
+            }
+        ] : [],
+        ...user ? [
+            {
+                path: "/symptoms",
+                label: "Symptoms"
+            }
+        ] : [],
+        ...user ? [
+            {
+                path: "/profile/[id]",
+                label: "Public Profiles"
             }
         ] : []
     ];
@@ -290,17 +314,17 @@ const Navbar = ()=>{
                                     children: link.label
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/components/Navbar.js",
-                                    lineNumber: 33,
+                                    lineNumber: 37,
                                     columnNumber: 17
                                 }, this)
                             }, link.path, false, {
                                 fileName: "[project]/src/app/components/Navbar.js",
-                                lineNumber: 32,
+                                lineNumber: 36,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/components/Navbar.js",
-                        lineNumber: 30,
+                        lineNumber: 34,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -313,7 +337,7 @@ const Navbar = ()=>{
                                         children: user.username
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/Navbar.js",
-                                        lineNumber: 50,
+                                        lineNumber: 54,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -322,7 +346,7 @@ const Navbar = ()=>{
                                         children: "Logout"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/Navbar.js",
-                                        lineNumber: 53,
+                                        lineNumber: 57,
                                         columnNumber: 17
                                     }, this)
                                 ]
@@ -334,7 +358,7 @@ const Navbar = ()=>{
                                         children: "Login"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/Navbar.js",
-                                        lineNumber: 62,
+                                        lineNumber: 66,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -343,36 +367,36 @@ const Navbar = ()=>{
                                         children: "Register"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/Navbar.js",
-                                        lineNumber: 68,
+                                        lineNumber: 72,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$ThemeToggle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {}, void 0, false, {
                                 fileName: "[project]/src/app/components/Navbar.js",
-                                lineNumber: 76,
+                                lineNumber: 80,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/Navbar.js",
-                        lineNumber: 47,
+                        lineNumber: 51,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/components/Navbar.js",
-                lineNumber: 29,
+                lineNumber: 33,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/app/components/Navbar.js",
-            lineNumber: 28,
+            lineNumber: 32,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/components/Navbar.js",
-        lineNumber: 27,
+        lineNumber: 31,
         columnNumber: 5
     }, this);
 };
