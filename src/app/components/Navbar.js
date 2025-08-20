@@ -24,6 +24,8 @@ const Navbar = () => {
     ...(user ? [{ path: "/nutrition", label: "Nutrition" }] : []),
     ...(user ? [{ path: "/notifications", label: "Notifications" }] : []),
     ...(user ? [{ path: "/reminders", label: "Reminders" }] : []),
+    ...(user ? [{ path: "/community", label: "Community" }] : []),
+    ...(user ? [{ path: "/social", label: "Social" }] : []),
     ...(user ? [{ path: "/profile", label: "Profile" }] : []),
     ...(user?.role === "admin"
       ? [{ path: "/admin/users", label: "Admin: Users" }]
