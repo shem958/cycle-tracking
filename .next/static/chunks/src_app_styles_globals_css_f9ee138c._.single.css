@@ -360,6 +360,10 @@ img, video {
   margin-bottom: -1px;
 }
 
+.mb-1 {
+  margin-bottom: .25rem;
+}
+
 .block {
   display: block;
 }
@@ -633,6 +637,11 @@ img, video {
 
 .border-transparent {
   border-color: #0000;
+}
+
+.border-gray-300 {
+  --tw-border-opacity: 1;
+  border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
 
 .bg-\[\#1B2433\] {
