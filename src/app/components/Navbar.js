@@ -17,8 +17,9 @@ const Navbar = () => {
     { path: "/history", label: "Cycle History" },
     { path: "/insights", label: "Health Insights" },
     { path: "/ovulation", label: "Ovulation Tracker" },
+    ...(user ? [{ path: "/profile", label: "Profile" }] : []),
     ...(user?.role === "admin"
-      ? [{ path: "/admin", label: "Admin Dashboard" }]
+      ? [{ path: "/admin/users", label: "Admin: Users" }]
       : []),
   ];
 
@@ -46,12 +47,9 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
-                <Link
-                  href="/profile"
-                  className="text-foreground/70 hover:text-foreground text-sm"
-                >
+                <span className="text-foreground/70 text-sm">
                   {user.username}
-                </Link>
+                </span>
                 <button
                   onClick={logout}
                   className="text-foreground/70 hover:text-foreground text-sm"
