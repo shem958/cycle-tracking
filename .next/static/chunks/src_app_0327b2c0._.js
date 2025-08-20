@@ -48,6 +48,16 @@ const CycleForm = ()=>{
         "Bloating",
         "Nausea"
     ];
+    const resetForm = ()=>{
+        reset({
+            startDate: "",
+            length: "",
+            symptoms: [],
+            mood: ""
+        });
+        setIsEditing(false);
+        setEditId(null);
+    };
     const submitCycle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "CycleForm.useCallback[submitCycle]": async (cycleData, method, id)=>{
             try {
@@ -164,16 +174,6 @@ const CycleForm = ()=>{
         } catch (error) {
             console.error("Delete error:", error);
         }
-    };
-    const resetForm = ()=>{
-        reset({
-            startDate: "",
-            length: "",
-            symptoms: [],
-            mood: ""
-        });
-        setIsEditing(false);
-        setEditId(null);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "min-h-screen w-full bg-pink-50 dark:bg-gray-900 p-6",

@@ -1,7 +1,7 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AppContext } from "../context/AppContext";
+import { useAppContext } from "../context/AppContext";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
@@ -11,13 +11,16 @@ export default function RegisterPage() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { setUser, setToken } = useContext(AppContext);
+  const { setUser, setToken } = useAppContext();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const onSubmit = async (data) => {
+    setLoading(true);
+    setError("");
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch("http://localhost:8080/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -33,46 +36,52 @@ export default function RegisterPage() {
         localStorage.setItem("token", result.token);
         router.push("/");
       } else {
-        setError(result.message || "Registration failed");
+        setError(result.message || "Registration failed. Please try again.");
       }
     } catch {
-      setError("Something went wrong");
+      setError(
+        "An unexpected error occurred. Check your network or try again later."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <div className="min-h-screen flex items-center justify-center bg-pink-50 dark:bg-gray-900">
+      <div className="bg-[#1B2433] p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center text-white">
+          Register
+        </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-300">
               Username
             </label>
             <input
               type="text"
               {...register("username", { required: "Username is required" })}
-              className="mt-1 block w-full p-2 border rounded-md"
+              className="mt-1 block w-full p-2 rounded-xl bg-[#2A3441] text-gray-200 border-none focus:ring-2 focus:ring-pink-500"
             />
             {errors.username && (
               <p className="text-red-500 text-sm">{errors.username.message}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-300">
               Email
             </label>
             <input
               type="email"
               {...register("email", { required: "Email is required" })}
-              className="mt-1 block w-full p-2 border rounded-md"
+              className="mt-1 block w-full p-2 rounded-xl bg-[#2A3441] text-gray-200 border-none focus:ring-2 focus:ring-pink-500"
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-300">
               Password
             </label>
             <input
@@ -84,7 +93,7 @@ export default function RegisterPage() {
                   message: "Password must be at least 6 characters",
                 },
               })}
-              className="mt-1 block w-full p-2 border rounded-md"
+              className="mt-1 block w-full p-2 rounded-xl bg-[#2A3441] text-gray-200 border-none focus:ring-2 focus:ring-pink-500"
             />
             {errors.password && (
               <p className="text-red-500 text-sm">{errors.password.message}</p>
@@ -93,14 +102,15 @@ export default function RegisterPage() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+            disabled={loading}
+            className="w-full bg-pink-500 text-white p-2 rounded-xl hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed transition-colors duration-300"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
-        <p className="mt-4 text-center">
+        <p className="mt-4 text-center text-gray-300">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-500">
+          <Link href="/login" className="text-pink-500 hover:text-pink-600">
             Login
           </Link>
         </p>

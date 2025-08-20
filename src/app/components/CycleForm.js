@@ -27,6 +27,12 @@ const CycleForm = () => {
     "Nausea",
   ];
 
+  const resetForm = () => {
+    reset({ startDate: "", length: "", symptoms: [], mood: "" });
+    setIsEditing(false);
+    setEditId(null);
+  };
+
   const submitCycle = useCallback(
     async (cycleData, method, id) => {
       try {
@@ -135,12 +141,6 @@ const CycleForm = () => {
     } catch (error) {
       console.error("Delete error:", error);
     }
-  };
-
-  const resetForm = () => {
-    reset({ startDate: "", length: "", symptoms: [], mood: "" });
-    setIsEditing(false);
-    setEditId(null);
   };
 
   return (
