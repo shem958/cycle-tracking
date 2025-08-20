@@ -1,26 +1,8 @@
 {
   "app": {
-    "[project]/src/app/history/page": [
-      "static/media/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk-s.p.d95035ce.woff2",
-      "static/media/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb-s.p.20b09c80.woff2",
-      "static/media/pxiEyp8kv8JHgFVrJJfecnFHGPc-s.p.c336a9d1.woff2",
-      "static/media/QGYvz_MVcBeNP4NJtEtqUYLknw-s.p.de485432.woff2"
-    ],
-    "[project]/src/app/insights/page": [
-      "static/media/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb-s.p.20b09c80.woff2",
-      "static/media/pxiEyp8kv8JHgFVrJJfecnFHGPc-s.p.c336a9d1.woff2",
-      "static/media/QGYvz_MVcBeNP4NJtEtqUYLknw-s.p.de485432.woff2",
-      "static/media/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk-s.p.d95035ce.woff2"
-    ],
-    "[project]/src/app/ovulation/page": [
-      "static/media/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb-s.p.20b09c80.woff2",
-      "static/media/pxiEyp8kv8JHgFVrJJfecnFHGPc-s.p.c336a9d1.woff2",
-      "static/media/QGYvz_MVcBeNP4NJtEtqUYLknw-s.p.de485432.woff2",
-      "static/media/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk-s.p.d95035ce.woff2"
-    ],
     "[project]/src/app/page": [
-      "static/media/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb-s.p.20b09c80.woff2",
       "static/media/pxiEyp8kv8JHgFVrJJfecnFHGPc-s.p.c336a9d1.woff2",
+      "static/media/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko20yygg_vb-s.p.20b09c80.woff2",
       "static/media/QGYvz_MVcBeNP4NJtEtqUYLknw-s.p.de485432.woff2",
       "static/media/pxiByp8kv8JHgFVrLCz7Z1xlFd2JQEk-s.p.d95035ce.woff2"
     ]

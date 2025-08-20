@@ -1,7 +1,4 @@
 {
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/history/page": "app/history/page.js",
-  "/insights/page": "app/insights/page.js",
-  "/ovulation/page": "app/ovulation/page.js",
   "/page": "app/page.js"
 }
