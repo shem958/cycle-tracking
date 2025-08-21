@@ -4,19 +4,35 @@ import { useAppContext } from "@/app/context/AppContext";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 
 export default function PregnancyDashboard() {
-  const { token } = useAppContext();
+  const { token, user } = useAppContext();
   const [pregnancyData, setPregnancyData] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchPregnancyData = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/pregnancy", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `http://localhost:8080/api/pregnancy-checkups/user/${user.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
-          setPregnancyData(data);
+          // Aggregate data into the expected format
+          const checkups = data || [];
+          const latestCheckup =
+            checkups.length > 0 ? checkups[checkups.length - 1] : null;
+          setPregnancyData({
+            estimatedDueDate: latestCheckup?.date
+              ? new Date(latestCheckup.date).setDate(
+                  new Date(latestCheckup.date).getDate() + 40 * 7
+                )
+              : null, // Rough estimate
+            appointments: checkups,
+            weight: latestCheckup?.weight || null,
+            bloodPressure: latestCheckup?.bloodPressure || null,
+          });
         } else {
           setError("No pregnancy data available");
         }
@@ -24,8 +40,8 @@ export default function PregnancyDashboard() {
         setError("Something went wrong");
       }
     };
-    if (token) fetchPregnancyData();
-  }, [token]);
+    if (token && user?.id) fetchPregnancyData();
+  }, [token, user?.id]);
 
   if (error) return <div className="p-6 text-red-500 text-center">{error}</div>;
   if (!pregnancyData) return <div className="p-6 text-center">Loading...</div>;
@@ -44,17 +60,20 @@ export default function PregnancyDashboard() {
             </h2>
             <p className="text-foreground">
               <strong>Estimated Due Date:</strong>{" "}
-              {new Date(estimatedDueDate).toLocaleDateString()}
+              {estimatedDueDate
+                ? new Date(estimatedDueDate).toLocaleDateString()
+                : "Not estimated"}
             </p>
             <p className="text-foreground">
               <strong>Current Week:</strong>{" "}
-              {Math.floor(
-                (((new Date() - new Date(estimatedDueDate)) /
-                  (7 * 24 * 60 * 60 * 1000)) *
-                  -1) /
-                  7
-              )}{" "}
-              weeks
+              {estimatedDueDate
+                ? Math.floor(
+                    (((new Date() - new Date(estimatedDueDate)) /
+                      (7 * 24 * 60 * 60 * 1000)) *
+                      -1) /
+                      7
+                  ) + " weeks"
+                : "N/A"}
             </p>
           </div>
           <div className="mb-6">

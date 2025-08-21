@@ -54,20 +54,28 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$components$2f$
 ;
 ;
 function PregnancyDashboard() {
-    const { token } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppContext"])();
+    const { token, user } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppContext"])();
     const [pregnancyData, setPregnancyData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const fetchPregnancyData = async ()=>{
             try {
-                const res = await fetch("http://localhost:8080/api/pregnancy", {
+                const res = await fetch(`http://localhost:8080/api/pregnancy-checkups/user/${user.id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    setPregnancyData(data);
+                    // Aggregate data into the expected format
+                    const checkups = data || [];
+                    const latestCheckup = checkups.length > 0 ? checkups[checkups.length - 1] : null;
+                    setPregnancyData({
+                        estimatedDueDate: latestCheckup?.date ? new Date(latestCheckup.date).setDate(new Date(latestCheckup.date).getDate() + 40 * 7) : null,
+                        appointments: checkups,
+                        weight: latestCheckup?.weight || null,
+                        bloodPressure: latestCheckup?.bloodPressure || null
+                    });
                 } else {
                     setError("No pregnancy data available");
                 }
@@ -75,16 +83,17 @@ function PregnancyDashboard() {
                 setError("Something went wrong");
             }
         };
-        if (token) fetchPregnancyData();
+        if (token && user?.id) fetchPregnancyData();
     }, [
-        token
+        token,
+        user?.id
     ]);
     if (error) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "p-6 text-red-500 text-center",
         children: error
     }, void 0, false, {
         fileName: "[project]/src/app/pregnancy/page.js",
-        lineNumber: 30,
+        lineNumber: 46,
         columnNumber: 21
     }, this);
     if (!pregnancyData) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -92,7 +101,7 @@ function PregnancyDashboard() {
         children: "Loading..."
     }, void 0, false, {
         fileName: "[project]/src/app/pregnancy/page.js",
-        lineNumber: 31,
+        lineNumber: 47,
         columnNumber: 30
     }, this);
     const { estimatedDueDate, appointments, weight, bloodPressure } = pregnancyData;
@@ -110,7 +119,7 @@ function PregnancyDashboard() {
                     children: "Pregnancy Dashboard"
                 }, void 0, false, {
                     fileName: "[project]/src/app/pregnancy/page.js",
-                    lineNumber: 39,
+                    lineNumber: 55,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -124,7 +133,7 @@ function PregnancyDashboard() {
                                     children: "Overview"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 42,
+                                    lineNumber: 58,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -134,15 +143,15 @@ function PregnancyDashboard() {
                                             children: "Estimated Due Date:"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/pregnancy/page.js",
-                                            lineNumber: 46,
+                                            lineNumber: 62,
                                             columnNumber: 15
                                         }, this),
                                         " ",
-                                        new Date(estimatedDueDate).toLocaleDateString()
+                                        estimatedDueDate ? new Date(estimatedDueDate).toLocaleDateString() : "Not estimated"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 45,
+                                    lineNumber: 61,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -152,23 +161,21 @@ function PregnancyDashboard() {
                                             children: "Current Week:"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/pregnancy/page.js",
-                                            lineNumber: 50,
+                                            lineNumber: 68,
                                             columnNumber: 15
                                         }, this),
                                         " ",
-                                        Math.floor((new Date() - new Date(estimatedDueDate)) / (7 * 24 * 60 * 60 * 1000) * -1 / 7),
-                                        " ",
-                                        "weeks"
+                                        estimatedDueDate ? Math.floor((new Date() - new Date(estimatedDueDate)) / (7 * 24 * 60 * 60 * 1000) * -1 / 7) + " weeks" : "N/A"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 49,
+                                    lineNumber: 67,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/pregnancy/page.js",
-                            lineNumber: 41,
+                            lineNumber: 57,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -179,7 +186,7 @@ function PregnancyDashboard() {
                                     children: "Health Metrics"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 61,
+                                    lineNumber: 80,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -189,7 +196,7 @@ function PregnancyDashboard() {
                                             children: "Weight:"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/pregnancy/page.js",
-                                            lineNumber: 65,
+                                            lineNumber: 84,
                                             columnNumber: 15
                                         }, this),
                                         " ",
@@ -198,7 +205,7 @@ function PregnancyDashboard() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 64,
+                                    lineNumber: 83,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -208,7 +215,7 @@ function PregnancyDashboard() {
                                             children: "Blood Pressure:"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/pregnancy/page.js",
-                                            lineNumber: 68,
+                                            lineNumber: 87,
                                             columnNumber: 15
                                         }, this),
                                         " ",
@@ -218,13 +225,13 @@ function PregnancyDashboard() {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 67,
+                                    lineNumber: 86,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/pregnancy/page.js",
-                            lineNumber: 60,
+                            lineNumber: 79,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -234,7 +241,7 @@ function PregnancyDashboard() {
                                     children: "Appointments"
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 73,
+                                    lineNumber: 92,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -248,42 +255,42 @@ function PregnancyDashboard() {
                                             ]
                                         }, index, true, {
                                             fileName: "[project]/src/app/pregnancy/page.js",
-                                            lineNumber: 79,
+                                            lineNumber: 98,
                                             columnNumber: 19
                                         }, this)) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         className: "text-foreground/80",
                                         children: "No appointments scheduled."
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/pregnancy/page.js",
-                                        lineNumber: 84,
+                                        lineNumber: 103,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/pregnancy/page.js",
-                                    lineNumber: 76,
+                                    lineNumber: 95,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/pregnancy/page.js",
-                            lineNumber: 72,
+                            lineNumber: 91,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/pregnancy/page.js",
-                    lineNumber: 40,
+                    lineNumber: 56,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/app/pregnancy/page.js",
-            lineNumber: 38,
+            lineNumber: 54,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/app/pregnancy/page.js",
-        lineNumber: 37,
+        lineNumber: 53,
         columnNumber: 5
     }, this);
 }
