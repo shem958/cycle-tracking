@@ -1,9 +1,18 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
+  "/checkups/page": "app/checkups/page.js",
+  "/community/page": "app/community/page.js",
   "/cycles/page": "app/cycles/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/history/page": "app/history/page.js",
+  "/insights/page": "app/insights/page.js",
   "/login/page": "app/login/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/nutrition/page": "app/nutrition/page.js",
   "/page": "app/page.js",
-  "/register/page": "app/register/page.js"
+  "/pregnancy/page": "app/pregnancy/page.js",
+  "/recommendations/page": "app/recommendations/page.js",
+  "/register/page": "app/register/page.js",
+  "/reminders/page": "app/reminders/page.js",
+  "/social/page": "app/social/page.js"
 }
