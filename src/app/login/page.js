@@ -26,19 +26,21 @@ export default function LoginPage() {
         body: JSON.stringify(data),
       });
       const result = await res.json();
+      console.log("Login response:", result); // Debug
       if (res.ok) {
         setToken(result.token);
         setUser({
-          id: result.user.id,
-          username: result.user.username,
-          role: result.user.role,
+          id: result.user?.id || result.id, // Fallback to root id if user is undefined
+          username: result.user?.username || result.username, // Fallback
+          role: result.user?.role || result.role, // Fallback
         });
         localStorage.setItem("token", result.token);
         router.push("/"); // Redirect to dashboard
       } else {
         setError(result.message || "Login failed. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      console.error("Fetch error:", err);
       setError(
         "An unexpected error occurred. Check your network or try again later."
       );
