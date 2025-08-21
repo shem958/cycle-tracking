@@ -26,6 +26,7 @@ export default function RegisterPage() {
         body: JSON.stringify(data),
       });
       const result = await res.json();
+      console.log("Registration response:", result); // Debug
       if (res.ok) {
         setToken(result.token);
         setUser({
@@ -38,7 +39,8 @@ export default function RegisterPage() {
       } else {
         setError(result.message || "Registration failed. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      console.error("Fetch error:", err);
       setError(
         "An unexpected error occurred. Check your network or try again later."
       );
