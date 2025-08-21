@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
 
 export default function CheckupScheduling() {
-  const { token } = useAppContext();
+  const { token, user } = useAppContext();
   const {
     register,
     handleSubmit,
@@ -17,20 +17,21 @@ export default function CheckupScheduling() {
 
   const onSubmit = async (data) => {
     try {
-      const res = await fetch("http://localhost:8080/api/checkups", {
+      const res = await fetch("http://localhost:8080/api/pregnancy-checkups/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ userId: user.id, ...data }),
       });
       if (res.ok) {
         setSuccess("Checkup scheduled successfully");
         setError("");
         reset();
       } else {
-        setError("Failed to schedule checkup");
+        const result = await res.json();
+        setError(result.message || "Failed to schedule checkup");
       }
     } catch {
       setError("Something went wrong");
@@ -64,6 +65,35 @@ export default function CheckupScheduling() {
               {errors.details && (
                 <p className="text-red-500 text-sm">{errors.details.message}</p>
               )}
+            </div>
+            <div>
+              <label className="block text-sm text-gray-300">Weight (kg)</label>
+              <input
+                type="number"
+                step="0.1"
+                {...register("weight")}
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-300">
+                Blood Pressure (e.g., 120/80)
+              </label>
+              <input
+                type="text"
+                {...register("bloodPressure")}
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-300">
+                Fetal Movement (e.g., Yes/No)
+              </label>
+              <input
+                type="text"
+                {...register("fetalMovement")}
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+              />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             {success && <p className="text-green-500 text-sm">{success}</p>}
