@@ -16,6 +16,9 @@ const CycleForm = () => {
   } = useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+  const [loading, setLoading] = useState(false); // NEW
+  const [error, setError] = useState(""); // NEW
+  const [success, setSuccess] = useState(""); // NEW
 
   // Predefined options
   const moodOptions = ["Happy", "Sad", "Anxious", "Irritable", "Calm"];
@@ -27,14 +30,19 @@ const CycleForm = () => {
     "Nausea",
   ];
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     reset({ startDate: "", length: "", symptoms: [], mood: "" });
     setIsEditing(false);
     setEditId(null);
-  };
+    setError("");
+    setSuccess("");
+  }, [reset]);
 
   const submitCycle = useCallback(
     async (cycleData, method, id) => {
+      setLoading(true);
+      setError("");
+      setSuccess("");
       try {
         const token = localStorage.getItem("token");
         const url = id
@@ -52,11 +60,16 @@ const CycleForm = () => {
         if (res.ok) {
           resetForm();
           fetchCycles();
+          setSuccess("Cycle saved successfully!");
         } else {
-          throw new Error("Failed to save cycle");
+          const result = await res.json().catch(() => ({}));
+          setError(result.message || "Failed to save cycle");
         }
-      } catch (error) {
-        console.error("Submit error:", error);
+      } catch {
+        setError("Network error. Please try again.");
+        console.error("Submit error:");
+      } finally {
+        setLoading(false);
       }
     },
     [fetchCycles, resetForm]
@@ -92,20 +105,29 @@ const CycleForm = () => {
   }, [syncPendingCycles]);
 
   const onSubmit = async (data) => {
+    setError("");
+    setSuccess("");
+    setLoading(true);
     const cycleData = {
       startDate: data.startDate,
       length: parseInt(data.length),
-      symptoms: data.symptoms.join(","), // Convert array to comma-separated string
+      symptoms: data.symptoms.join(","),
       mood: data.mood,
     };
     const tempId = isEditing ? editId : Date.now();
 
     if (!navigator.onLine) {
-      // Save to IndexedDB if offline
-      const db = await openDB("CycleTrackerDB", 1);
-      await db.put("pendingCycles", { ...cycleData, id: tempId });
-      setCycles([...cycles, { ...cycleData, ID: tempId }]);
-      resetForm();
+      try {
+        const db = await openDB("CycleTrackerDB", 1);
+        await db.put("pendingCycles", { ...cycleData, id: tempId });
+        setCycles([...cycles, { ...cycleData, ID: tempId }]);
+        resetForm();
+        setSuccess("Saved offline. Will sync when online.");
+      } catch {
+        setError("Failed to save offline.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -158,6 +180,12 @@ const CycleForm = () => {
         <h2 className="text-3xl font-semibold mb-8 text-white text-center">
           {isEditing ? "Edit Cycle" : "Cycle Journal"}
         </h2>
+
+        {/* NEW: Feedback messages */}
+        {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
+        {success && (
+          <div className="mb-4 text-green-500 text-center">{success}</div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-6">
@@ -238,8 +266,15 @@ const CycleForm = () => {
           <button
             type="submit"
             className="px-8 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-medium text-lg"
+            disabled={loading} // NEW
           >
-            {isEditing ? "Update Entry" : "Save Entry"}
+            {loading
+              ? isEditing
+                ? "Updating..."
+                : "Saving..."
+              : isEditing
+              ? "Update Entry"
+              : "Save Entry"}
           </button>
 
           {isEditing && (
