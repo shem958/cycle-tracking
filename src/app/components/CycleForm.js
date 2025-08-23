@@ -3,10 +3,9 @@ import { useEffect, useState, useCallback } from "react";
 import { Calendar, Activity, Heart, Clock, Trash2, Pencil } from "lucide-react";
 import { useAppContext } from "../context/AppContext";
 import { useForm } from "react-hook-form";
-import { openDB } from "idb";
 
 const CycleForm = () => {
-  const { cycles, setCycles, fetchCycles } = useAppContext();
+  const { cycles, setCycles, fetchCycles, token } = useAppContext();
   const {
     register,
     handleSubmit,
@@ -16,9 +15,9 @@ const CycleForm = () => {
   } = useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-  const [loading, setLoading] = useState(false); // NEW
-  const [error, setError] = useState(""); // NEW
-  const [success, setSuccess] = useState(""); // NEW
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   // Predefined options
   const moodOptions = ["Happy", "Sad", "Anxious", "Irritable", "Calm"];
@@ -43,11 +42,16 @@ const CycleForm = () => {
       setLoading(true);
       setError("");
       setSuccess("");
+
       try {
-        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Authentication token not found");
+        }
+
         const url = id
           ? `http://localhost:8080/api/cycles/${id}`
           : "http://localhost:8080/api/cycles";
+
         const res = await fetch(url, {
           method,
           headers: {
@@ -57,97 +61,76 @@ const CycleForm = () => {
           body: JSON.stringify(cycleData),
         });
 
-        if (res.ok) {
-          resetForm();
-          fetchCycles();
-          setSuccess("Cycle saved successfully!");
-        } else {
+        if (!res.ok) {
           const result = await res.json().catch(() => ({}));
-          setError(result.message || "Failed to save cycle");
+          throw new Error(
+            result.message || `HTTP ${res.status}: Failed to save cycle`
+          );
         }
-      } catch {
-        setError("Network error. Please try again.");
-        console.error("Submit error:");
+
+        resetForm();
+        await fetchCycles(); // Ensure cycles are refreshed
+        setSuccess("Cycle saved successfully!");
+
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(""), 3000);
+      } catch (err) {
+        console.error("Submit error:", err);
+        setError(err.message || "Network error. Please try again.");
       } finally {
         setLoading(false);
       }
     },
-    [fetchCycles, resetForm]
-  ); // Add resetForm here
-
-  const syncPendingCycles = useCallback(
-    async (db) => {
-      const tx = db.transaction("pendingCycles", "readwrite");
-      const store = tx.objectStore("pendingCycles");
-      const pending = await store.getAll();
-      for (const cycle of pending) {
-        await submitCycle(cycle, cycle.id ? "PUT" : "POST", cycle.id);
-        await store.delete(cycle.id);
-      }
-    },
-    [submitCycle]
-  ); // Add submitCycle as a dependency
-
-  // Initialize IndexedDB
-  useEffect(() => {
-    const initDB = async () => {
-      const db = await openDB("CycleTrackerDB", 1, {
-        upgrade(db) {
-          db.createObjectStore("pendingCycles", { keyPath: "id" });
-        },
-      });
-      // Sync pending cycles when online
-      if (navigator.onLine) {
-        syncPendingCycles(db);
-      }
-    };
-    initDB();
-  }, [syncPendingCycles]);
+    [fetchCycles, resetForm, token]
+  );
 
   const onSubmit = async (data) => {
     setError("");
     setSuccess("");
-    setLoading(true);
+
+    // Validate data
+    if (!data.startDate) {
+      setError("Start date is required");
+      return;
+    }
+
+    if (!data.length || data.length < 1 || data.length > 99) {
+      setError("Cycle length must be between 1 and 99 days");
+      return;
+    }
+
     const cycleData = {
       startDate: data.startDate,
       length: parseInt(data.length),
-      symptoms: data.symptoms.join(","),
-      mood: data.mood,
+      symptoms: Array.isArray(data.symptoms) ? data.symptoms.join(",") : "",
+      mood: data.mood || "",
     };
-    const tempId = isEditing ? editId : Date.now();
-
-    if (!navigator.onLine) {
-      try {
-        const db = await openDB("CycleTrackerDB", 1);
-        await db.put("pendingCycles", { ...cycleData, id: tempId });
-        setCycles([...cycles, { ...cycleData, ID: tempId }]);
-        resetForm();
-        setSuccess("Saved offline. Will sync when online.");
-      } catch {
-        setError("Failed to save offline.");
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
 
     await submitCycle(cycleData, isEditing ? "PUT" : "POST", editId);
   };
 
   const handleEdit = (cycle) => {
+    if (!cycle) return;
+
     setValue("startDate", cycle.startDate);
     setValue("length", cycle.length);
     setValue("symptoms", cycle.symptoms ? cycle.symptoms.split(",") : []);
-    setValue("mood", cycle.mood);
+    setValue("mood", cycle.mood || "");
     setEditId(cycle.ID);
     setIsEditing(true);
+    setError("");
+    setSuccess("");
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this entry?")) return;
 
+    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Authentication token not found");
+      }
+
       const res = await fetch(`http://localhost:8080/api/cycles/${id}`, {
         method: "DELETE",
         headers: {
@@ -155,15 +138,29 @@ const CycleForm = () => {
         },
       });
 
-      if (res.ok) {
-        fetchCycles();
-      } else {
-        console.error("Failed to delete entry");
+      if (!res.ok) {
+        const result = await res.json().catch(() => ({}));
+        throw new Error(result.message || "Failed to delete entry");
       }
-    } catch (error) {
-      console.error("Delete error:", error);
+
+      await fetchCycles();
+      setSuccess("Entry deleted successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      console.error("Delete error:", err);
+      setError(err.message || "Failed to delete entry");
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Auto-clear error messages after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   return (
     <div className="min-h-screen w-full bg-pink-50 dark:bg-gray-900 p-6">
@@ -181,10 +178,18 @@ const CycleForm = () => {
           {isEditing ? "Edit Cycle" : "Cycle Journal"}
         </h2>
 
-        {/* NEW: Feedback messages */}
-        {error && <div className="mb-4 text-red-500 text-center">{error}</div>}
+        {/* Feedback messages */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+          </div>
+        )}
         {success && (
-          <div className="mb-4 text-green-500 text-center">{success}</div>
+          <div className="mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg">
+            <p className="text-green-800 dark:text-green-200 text-sm">
+              {success}
+            </p>
+          </div>
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -197,10 +202,11 @@ const CycleForm = () => {
                 {...register("startDate", {
                   required: "Start date is required",
                 })}
-                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none"
+                max={new Date().toISOString().split("T")[0]} // Prevent future dates
               />
               {errors.startDate && (
-                <p className="text-red-500 text-sm">
+                <p className="text-red-400 text-sm mt-1">
                   {errors.startDate.message}
                 </p>
               )}
@@ -216,10 +222,14 @@ const CycleForm = () => {
                   min: { value: 1, message: "Minimum 1 day" },
                   max: { value: 99, message: "Maximum 99 days" },
                 })}
-                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none"
+                min="1"
+                max="99"
               />
               {errors.length && (
-                <p className="text-red-500 text-sm">{errors.length.message}</p>
+                <p className="text-red-400 text-sm mt-1">
+                  {errors.length.message}
+                </p>
               )}
             </label>
 
@@ -228,7 +238,7 @@ const CycleForm = () => {
               Mood
               <select
                 {...register("mood")}
-                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+                className="w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none"
               >
                 <option value="">Select mood</option>
                 {moodOptions.map((mood) => (
@@ -243,21 +253,26 @@ const CycleForm = () => {
           <label className="block text-sm text-gray-300">
             <Activity className="inline w-4 h-4 mr-2" />
             Symptoms
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
               {symptomOptions.map((symptom) => (
-                <label key={symptom} className="flex items-center">
+                <label
+                  key={symptom}
+                  className="flex items-center text-gray-300 hover:text-white"
+                >
                   <input
                     type="checkbox"
                     value={symptom}
                     {...register("symptoms")}
-                    className="mr-2"
+                    className="mr-2 text-pink-500 focus:ring-pink-500"
                   />
                   {symptom}
                 </label>
               ))}
             </div>
             {errors.symptoms && (
-              <p className="text-red-500 text-sm">{errors.symptoms.message}</p>
+              <p className="text-red-400 text-sm mt-1">
+                {errors.symptoms.message}
+              </p>
             )}
           </label>
         </div>
@@ -265,8 +280,8 @@ const CycleForm = () => {
         <div className="mt-8 flex justify-between items-center">
           <button
             type="submit"
-            className="px-8 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-medium text-lg"
-            disabled={loading} // NEW
+            className="px-8 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-medium text-lg transition-colors"
+            disabled={loading}
           >
             {loading
               ? isEditing
@@ -282,6 +297,7 @@ const CycleForm = () => {
               type="button"
               onClick={resetForm}
               className="text-sm text-gray-300 hover:text-white underline"
+              disabled={loading}
             >
               Cancel Edit
             </button>
@@ -289,43 +305,61 @@ const CycleForm = () => {
         </div>
       </form>
 
+      {/* Past Entries Section */}
       <div className="max-w-4xl mx-auto mt-12">
         <h3 className="text-xl font-medium mb-4 text-gray-800 dark:text-white">
-          Past Entries
+          Past Entries ({cycles.length})
         </h3>
-        <ul className="space-y-4">
-          {cycles.map((entry) => (
-            <li
-              key={entry.ID}
-              className="bg-white dark:bg-[#2A3441] rounded-xl p-4 shadow flex justify-between items-center"
-            >
-              <div>
-                <p className="text-gray-900 dark:text-gray-100 font-medium">
-                  {entry.startDate} - {entry.length} days
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  Mood: {entry.mood} | Symptoms: {entry.symptoms}
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => handleEdit(entry)}
-                  className="text-blue-500 hover:text-blue-700"
-                  title="Edit"
-                >
-                  <Pencil className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleDelete(entry.ID)}
-                  className="text-red-500 hover:text-red-700"
-                  title="Delete"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+
+        {cycles.length === 0 ? (
+          <div className="text-center py-12 bg-white dark:bg-[#2A3441] rounded-xl">
+            <div className="text-6xl mb-4">📝</div>
+            <p className="text-gray-500 dark:text-gray-400">No entries yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+              Your cycle entries will appear here after you save them
+            </p>
+          </div>
+        ) : (
+          <ul className="space-y-4">
+            {cycles.map((entry) => (
+              <li
+                key={entry.ID}
+                className="bg-white dark:bg-[#2A3441] rounded-xl p-4 shadow flex justify-between items-center hover:shadow-lg transition-shadow"
+              >
+                <div>
+                  <p className="text-gray-900 dark:text-gray-100 font-medium">
+                    {new Date(entry.startDate).toLocaleDateString()} -{" "}
+                    {entry.length} days
+                  </p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    <span className="font-medium">Mood:</span>{" "}
+                    {entry.mood || "Not specified"} |
+                    <span className="font-medium ml-2">Symptoms:</span>{" "}
+                    {entry.symptoms || "None"}
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEdit(entry)}
+                    className="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
+                    title="Edit"
+                    disabled={loading}
+                  >
+                    <Pencil className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(entry.ID)}
+                    className="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                    title="Delete"
+                    disabled={loading}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
