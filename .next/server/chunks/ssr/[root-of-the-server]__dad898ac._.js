@@ -106,7 +106,7 @@ const AppProvider = ({ children })=>{
     // Fetch user profile data
     const fetchUser = async (authToken)=>{
         try {
-            const res = await fetch("http://localhost:8080/api/profile", {
+            const res = await fetch("http://localhost:8080/api/profile/", {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     "Content-Type": "application/json"
@@ -139,7 +139,7 @@ const AppProvider = ({ children })=>{
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch("http://localhost:8080/api/cycles", {
+            const res = await fetch("http://localhost:8080/api/cycles/", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json"
