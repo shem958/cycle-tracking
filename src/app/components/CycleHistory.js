@@ -3,18 +3,55 @@ import React, { useMemo } from "react";
 import PropTypes from "prop-types";
 import { EnhancedCyclePredictor } from "../utils/cyclePredictor";
 
-const CycleHistory = ({ cycles = [] }) => {
+const CycleHistory = ({ cycles = [], loading = false, error = null }) => {
   const prediction = useMemo(() => {
     if (cycles.length < 2) return null;
 
-    const formattedHistory = cycles.map((cycle) => ({
-      startDate: cycle.startDate,
-      length: cycle.length,
-    }));
+    try {
+      const formattedHistory = cycles.map((cycle) => ({
+        startDate: cycle.startDate,
+        length: cycle.length,
+      }));
 
-    const predictor = new EnhancedCyclePredictor(formattedHistory);
-    return predictor.predictNextCycle();
+      const predictor = new EnhancedCyclePredictor(formattedHistory);
+      return predictor.predictNextCycle();
+    } catch (err) {
+      console.error("Error predicting cycle:", err);
+      return null;
+    }
   }, [cycles]);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full">
+        <h2 className="text-xl font-semibold mb-4 text-foreground">
+          Cycle History
+        </h2>
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full">
+        <h2 className="text-xl font-semibold mb-4 text-foreground">
+          Cycle History
+        </h2>
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+          <p className="text-red-600 dark:text-red-400 text-xs mt-2">
+            Please try refreshing the page or contact support if the problem
+            persists.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full">
@@ -49,7 +86,7 @@ const CycleHistory = ({ cycles = [] }) => {
         <ul className="space-y-4 overflow-y-auto max-h-[calc(100vh-12rem)]">
           {cycles.map((cycle, index) => (
             <li
-              key={index}
+              key={cycle.ID || index}
               className="p-4 border border-light-text/20 dark:border-dark-text/20 rounded-md 
                          bg-light-bg/50 dark:bg-dark-bg/50 
                          transition-colors duration-300 ease"
@@ -71,7 +108,15 @@ const CycleHistory = ({ cycles = [] }) => {
           ))}
         </ul>
       ) : (
-        <p className="text-foreground/80">No cycles logged yet.</p>
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📅</div>
+          <p className="text-foreground/80 text-lg mb-2">
+            No cycles logged yet.
+          </p>
+          <p className="text-foreground/60 text-sm">
+            Start tracking your cycles to see your history and predictions here.
+          </p>
+        </div>
       )}
     </div>
   );
@@ -80,12 +125,15 @@ const CycleHistory = ({ cycles = [] }) => {
 CycleHistory.propTypes = {
   cycles: PropTypes.arrayOf(
     PropTypes.shape({
+      ID: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       startDate: PropTypes.string.isRequired,
       length: PropTypes.number.isRequired,
       symptoms: PropTypes.string,
       mood: PropTypes.string,
     })
   ).isRequired,
+  loading: PropTypes.bool,
+  error: PropTypes.string,
 };
 
 export default CycleHistory;
