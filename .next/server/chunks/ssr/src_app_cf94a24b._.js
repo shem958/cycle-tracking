@@ -18,19 +18,20 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/pencil.js [app-ssr] (ecmascript) <export default as Pencil>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/context/AppContext.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/react-hook-form/dist/index.esm.mjs [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$idb$2f$build$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/idb/build/index.js [app-ssr] (ecmascript)");
 "use client";
 ;
 ;
 ;
 ;
 ;
-;
 const CycleForm = ()=>{
-    const { cycles, setCycles, fetchCycles } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppContext"])();
+    const { cycles, fetchCycles, token } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useAppContext"])();
     const { register, handleSubmit, reset, setValue, formState: { errors } } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useForm"])();
     const [isEditing, setIsEditing] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [editId, setEditId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
+    const [success, setSuccess] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     // Predefined options
     const moodOptions = [
         "Happy",
@@ -46,7 +47,7 @@ const CycleForm = ()=>{
         "Bloating",
         "Nausea"
     ];
-    const resetForm = ()=>{
+    const resetForm = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
         reset({
             startDate: "",
             length: "",
@@ -55,10 +56,19 @@ const CycleForm = ()=>{
         });
         setIsEditing(false);
         setEditId(null);
-    };
+        setError("");
+        setSuccess("");
+    }, [
+        reset
+    ]);
     const submitCycle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (cycleData, method, id)=>{
+        setLoading(true);
+        setError("");
+        setSuccess("");
         try {
-            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("Authentication token not found");
+            }
             const url = id ? `http://localhost:8080/api/cycles/${id}` : "http://localhost:8080/api/cycles";
             const res = await fetch(url, {
                 method,
@@ -68,103 +78,93 @@ const CycleForm = ()=>{
                 },
                 body: JSON.stringify(cycleData)
             });
-            if (res.ok) {
-                resetForm();
-                fetchCycles();
-            } else {
-                throw new Error("Failed to save cycle");
+            if (!res.ok) {
+                const result = await res.json().catch(()=>({}));
+                throw new Error(result.message || `HTTP ${res.status}: Failed to save cycle`);
             }
-        } catch (error) {
-            console.error("Submit error:", error);
+            resetForm();
+            await fetchCycles(); // Ensure cycles are refreshed
+            setSuccess("Cycle saved successfully!");
+            // Clear success message after 3 seconds
+            setTimeout(()=>setSuccess(""), 3000);
+        } catch (err) {
+            console.error("Submit error:", err);
+            setError(err.message || "Network error. Please try again.");
+        } finally{
+            setLoading(false);
         }
     }, [
         fetchCycles,
-        resetForm
-    ]); // Add resetForm here
-    const syncPendingCycles = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (db)=>{
-        const tx = db.transaction("pendingCycles", "readwrite");
-        const store = tx.objectStore("pendingCycles");
-        const pending = await store.getAll();
-        for (const cycle of pending){
-            await submitCycle(cycle, cycle.id ? "PUT" : "POST", cycle.id);
-            await store.delete(cycle.id);
-        }
-    }, [
-        submitCycle
-    ]); // Add submitCycle as a dependency
-    // Initialize IndexedDB
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        const initDB = async ()=>{
-            const db = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$idb$2f$build$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["openDB"])("CycleTrackerDB", 1, {
-                upgrade (db) {
-                    db.createObjectStore("pendingCycles", {
-                        keyPath: "id"
-                    });
-                }
-            });
-            // Sync pending cycles when online
-            if (navigator.onLine) {
-                syncPendingCycles(db);
-            }
-        };
-        initDB();
-    }, [
-        syncPendingCycles
+        resetForm,
+        token
     ]);
     const onSubmit = async (data)=>{
+        setError("");
+        setSuccess("");
+        // Validate data
+        if (!data.startDate) {
+            setError("Start date is required");
+            return;
+        }
+        if (!data.length || data.length < 1 || data.length > 99) {
+            setError("Cycle length must be between 1 and 99 days");
+            return;
+        }
         const cycleData = {
             startDate: data.startDate,
             length: parseInt(data.length),
-            symptoms: data.symptoms.join(","),
-            mood: data.mood
+            symptoms: Array.isArray(data.symptoms) ? data.symptoms.join(",") : "",
+            mood: data.mood || ""
         };
-        const tempId = isEditing ? editId : Date.now();
-        if (!navigator.onLine) {
-            // Save to IndexedDB if offline
-            const db = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$idb$2f$build$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["openDB"])("CycleTrackerDB", 1);
-            await db.put("pendingCycles", {
-                ...cycleData,
-                id: tempId
-            });
-            setCycles([
-                ...cycles,
-                {
-                    ...cycleData,
-                    ID: tempId
-                }
-            ]);
-            resetForm();
-            return;
-        }
         await submitCycle(cycleData, isEditing ? "PUT" : "POST", editId);
     };
     const handleEdit = (cycle)=>{
+        if (!cycle) return;
         setValue("startDate", cycle.startDate);
         setValue("length", cycle.length);
         setValue("symptoms", cycle.symptoms ? cycle.symptoms.split(",") : []);
-        setValue("mood", cycle.mood);
+        setValue("mood", cycle.mood || "");
         setEditId(cycle.ID);
         setIsEditing(true);
+        setError("");
+        setSuccess("");
     };
     const handleDelete = async (id)=>{
         if (!confirm("Are you sure you want to delete this entry?")) return;
+        setLoading(true);
         try {
-            const token = localStorage.getItem("token");
+            if (!token) {
+                throw new Error("Authentication token not found");
+            }
             const res = await fetch(`http://localhost:8080/api/cycles/${id}`, {
                 method: "DELETE",
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
-            if (res.ok) {
-                fetchCycles();
-            } else {
-                console.error("Failed to delete entry");
+            if (!res.ok) {
+                const result = await res.json().catch(()=>({}));
+                throw new Error(result.message || "Failed to delete entry");
             }
-        } catch (error) {
-            console.error("Delete error:", error);
+            await fetchCycles();
+            setSuccess("Entry deleted successfully!");
+            setTimeout(()=>setSuccess(""), 3000);
+        } catch (err) {
+            console.error("Delete error:", err);
+            setError(err.message || "Failed to delete entry");
+        } finally{
+            setLoading(false);
         }
     };
+    // Auto-clear error messages after 5 seconds
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (error) {
+            const timer = setTimeout(()=>setError(""), 5000);
+            return ()=>clearTimeout(timer);
+        }
+    }, [
+        error
+    ]);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "min-h-screen w-full bg-pink-50 dark:bg-gray-900 p-6",
         children: [
@@ -175,12 +175,12 @@ const CycleForm = ()=>{
                     children: "Track your cycles accurately and gain valuable health insights."
                 }, void 0, false, {
                     fileName: "[project]/src/app/components/CycleForm.js",
-                    lineNumber: 149,
+                    lineNumber: 168,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/components/CycleForm.js",
-                lineNumber: 148,
+                lineNumber: 167,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -192,8 +192,38 @@ const CycleForm = ()=>{
                         children: isEditing ? "Edit Cycle" : "Cycle Journal"
                     }, void 0, false, {
                         fileName: "[project]/src/app/components/CycleForm.js",
-                        lineNumber: 158,
+                        lineNumber: 177,
                         columnNumber: 9
+                    }, this),
+                    error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-red-800 dark:text-red-200 text-sm",
+                            children: error
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/CycleForm.js",
+                            lineNumber: 184,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleForm.js",
+                        lineNumber: 183,
+                        columnNumber: 11
+                    }, this),
+                    success && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mb-4 p-3 bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-700 rounded-lg",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-green-800 dark:text-green-200 text-sm",
+                            children: success
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/CycleForm.js",
+                            lineNumber: 189,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleForm.js",
+                        lineNumber: 188,
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "grid md:grid-cols-2 gap-8",
@@ -208,7 +238,7 @@ const CycleForm = ()=>{
                                                 className: "inline w-4 h-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 165,
+                                                lineNumber: 198,
                                                 columnNumber: 15
                                             }, this),
                                             "Start Date",
@@ -217,24 +247,25 @@ const CycleForm = ()=>{
                                                 ...register("startDate", {
                                                     required: "Start date is required"
                                                 }),
-                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none",
+                                                max: new Date().toISOString().split("T")[0]
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 167,
+                                                lineNumber: 200,
                                                 columnNumber: 15
                                             }, this),
                                             errors.startDate && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-red-500 text-sm",
+                                                className: "text-red-400 text-sm mt-1",
                                                 children: errors.startDate.message
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 175,
+                                                lineNumber: 209,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 164,
+                                        lineNumber: 197,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -244,7 +275,7 @@ const CycleForm = ()=>{
                                                 className: "inline w-4 h-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 182,
+                                                lineNumber: 216,
                                                 columnNumber: 15
                                             }, this),
                                             "Cycle Length (Days)",
@@ -261,24 +292,26 @@ const CycleForm = ()=>{
                                                         message: "Maximum 99 days"
                                                     }
                                                 }),
-                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200"
+                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none",
+                                                min: "1",
+                                                max: "99"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 184,
+                                                lineNumber: 218,
                                                 columnNumber: 15
                                             }, this),
                                             errors.length && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "text-red-500 text-sm",
+                                                className: "text-red-400 text-sm mt-1",
                                                 children: errors.length.message
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 194,
+                                                lineNumber: 230,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 181,
+                                        lineNumber: 215,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -288,20 +321,20 @@ const CycleForm = ()=>{
                                                 className: "inline w-4 h-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 199,
+                                                lineNumber: 237,
                                                 columnNumber: 15
                                             }, this),
                                             "Mood",
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
                                                 ...register("mood"),
-                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200",
+                                                className: "w-full mt-2 px-4 py-3 rounded-xl bg-[#2A3441] text-gray-200 border border-gray-600 focus:border-pink-500 focus:outline-none",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
                                                         value: "",
                                                         children: "Select mood"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                                        lineNumber: 205,
+                                                        lineNumber: 243,
                                                         columnNumber: 17
                                                     }, this),
                                                     moodOptions.map((mood)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -309,25 +342,25 @@ const CycleForm = ()=>{
                                                             children: mood
                                                         }, mood, false, {
                                                             fileName: "[project]/src/app/components/CycleForm.js",
-                                                            lineNumber: 207,
+                                                            lineNumber: 245,
                                                             columnNumber: 19
                                                         }, this))
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 201,
+                                                lineNumber: 239,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 198,
+                                        lineNumber: 236,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                lineNumber: 163,
+                                lineNumber: 196,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -337,55 +370,55 @@ const CycleForm = ()=>{
                                         className: "inline w-4 h-4 mr-2"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 216,
+                                        lineNumber: 254,
                                         columnNumber: 13
                                     }, this),
                                     "Symptoms",
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "mt-2 space-y-2",
+                                        className: "mt-2 space-y-2 max-h-40 overflow-y-auto",
                                         children: symptomOptions.map((symptom)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                className: "flex items-center",
+                                                className: "flex items-center text-gray-300 hover:text-white",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                                         type: "checkbox",
                                                         value: symptom,
                                                         ...register("symptoms"),
-                                                        className: "mr-2"
+                                                        className: "mr-2 text-pink-500 focus:ring-pink-500"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                                        lineNumber: 221,
+                                                        lineNumber: 262,
                                                         columnNumber: 19
                                                     }, this),
                                                     symptom
                                                 ]
                                             }, symptom, true, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 220,
+                                                lineNumber: 258,
                                                 columnNumber: 17
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 218,
+                                        lineNumber: 256,
                                         columnNumber: 13
                                     }, this),
                                     errors.symptoms && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                        className: "text-red-500 text-sm",
+                                        className: "text-red-400 text-sm mt-1",
                                         children: errors.symptoms.message
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 232,
+                                        lineNumber: 273,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                lineNumber: 215,
+                                lineNumber: 253,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleForm.js",
-                        lineNumber: 162,
+                        lineNumber: 195,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -393,33 +426,35 @@ const CycleForm = ()=>{
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 type: "submit",
-                                className: "px-8 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 text-white font-medium text-lg",
-                                children: isEditing ? "Update Entry" : "Save Entry"
+                                className: "px-8 py-3 rounded-xl bg-pink-500 hover:bg-pink-600 disabled:bg-pink-300 disabled:cursor-not-allowed text-white font-medium text-lg transition-colors",
+                                disabled: loading,
+                                children: loading ? isEditing ? "Updating..." : "Saving..." : isEditing ? "Update Entry" : "Save Entry"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                lineNumber: 238,
+                                lineNumber: 281,
                                 columnNumber: 11
                             }, this),
                             isEditing && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 type: "button",
                                 onClick: resetForm,
                                 className: "text-sm text-gray-300 hover:text-white underline",
+                                disabled: loading,
                                 children: "Cancel Edit"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                lineNumber: 246,
+                                lineNumber: 296,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleForm.js",
-                        lineNumber: 237,
+                        lineNumber: 280,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/components/CycleForm.js",
-                lineNumber: 154,
+                lineNumber: 173,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -427,113 +462,169 @@ const CycleForm = ()=>{
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                         className: "text-xl font-medium mb-4 text-gray-800 dark:text-white",
-                        children: "Past Entries"
-                    }, void 0, false, {
+                        children: [
+                            "Past Entries (",
+                            cycles.length,
+                            ")"
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleForm.js",
-                        lineNumber: 258,
+                        lineNumber: 310,
                         columnNumber: 9
                     }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                    cycles.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-center py-12 bg-white dark:bg-[#2A3441] rounded-xl",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-6xl mb-4",
+                                children: "📝"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/components/CycleForm.js",
+                                lineNumber: 316,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-gray-500 dark:text-gray-400",
+                                children: "No entries yet"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/components/CycleForm.js",
+                                lineNumber: 317,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-sm text-gray-400 dark:text-gray-500 mt-2",
+                                children: "Your cycle entries will appear here after you save them"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/components/CycleForm.js",
+                                lineNumber: 318,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/components/CycleForm.js",
+                        lineNumber: 315,
+                        columnNumber: 11
+                    }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
                         className: "space-y-4",
                         children: cycles.map((entry)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                className: "bg-white dark:bg-[#2A3441] rounded-xl p-4 shadow flex justify-between items-center",
+                                className: "bg-white dark:bg-[#2A3441] rounded-xl p-4 shadow flex justify-between items-center hover:shadow-lg transition-shadow",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-gray-900 dark:text-gray-100 font-medium",
                                                 children: [
-                                                    entry.startDate,
-                                                    " - ",
+                                                    new Date(entry.startDate).toLocaleDateString(),
+                                                    " -",
+                                                    " ",
                                                     entry.length,
                                                     " days"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 268,
-                                                columnNumber: 17
+                                                lineNumber: 330,
+                                                columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                                 className: "text-sm text-gray-700 dark:text-gray-300",
                                                 children: [
-                                                    "Mood: ",
-                                                    entry.mood,
-                                                    " | Symptoms: ",
-                                                    entry.symptoms
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "font-medium",
+                                                        children: "Mood:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/CycleForm.js",
+                                                        lineNumber: 335,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " ",
+                                                    entry.mood || "Not specified",
+                                                    " |",
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "font-medium ml-2",
+                                                        children: "Symptoms:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/CycleForm.js",
+                                                        lineNumber: 337,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    " ",
+                                                    entry.symptoms || "None"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 271,
-                                                columnNumber: 17
+                                                lineNumber: 334,
+                                                columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 267,
-                                        columnNumber: 15
+                                        lineNumber: 329,
+                                        columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "flex gap-3",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: ()=>handleEdit(entry),
-                                                className: "text-blue-500 hover:text-blue-700",
+                                                className: "text-blue-500 hover:text-blue-700 p-1 rounded transition-colors",
                                                 title: "Edit",
+                                                disabled: loading,
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$pencil$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Pencil$3e$__["Pencil"], {
                                                     className: "w-5 h-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/components/CycleForm.js",
-                                                    lineNumber: 281,
-                                                    columnNumber: 19
+                                                    lineNumber: 348,
+                                                    columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 276,
-                                                columnNumber: 17
+                                                lineNumber: 342,
+                                                columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: ()=>handleDelete(entry.ID),
-                                                className: "text-red-500 hover:text-red-700",
+                                                className: "text-red-500 hover:text-red-700 p-1 rounded transition-colors",
                                                 title: "Delete",
+                                                disabled: loading,
                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$trash$2d$2$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Trash2$3e$__["Trash2"], {
                                                     className: "w-5 h-5"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/components/CycleForm.js",
-                                                    lineNumber: 288,
-                                                    columnNumber: 19
+                                                    lineNumber: 356,
+                                                    columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                                lineNumber: 283,
-                                                columnNumber: 17
+                                                lineNumber: 350,
+                                                columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/CycleForm.js",
-                                        lineNumber: 275,
-                                        columnNumber: 15
+                                        lineNumber: 341,
+                                        columnNumber: 17
                                     }, this)
                                 ]
                             }, entry.ID, true, {
                                 fileName: "[project]/src/app/components/CycleForm.js",
-                                lineNumber: 263,
-                                columnNumber: 13
+                                lineNumber: 325,
+                                columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/src/app/components/CycleForm.js",
-                        lineNumber: 261,
-                        columnNumber: 9
+                        lineNumber: 323,
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/components/CycleForm.js",
-                lineNumber: 257,
+                lineNumber: 309,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/components/CycleForm.js",
-        lineNumber: 147,
+        lineNumber: 166,
         columnNumber: 5
     }, this);
 };
@@ -556,6 +647,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/cartesian/CartesianGrid.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/component/Tooltip.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/component/Legend.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/recharts/es6/component/ResponsiveContainer.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$context$2f$AppContext$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/app/context/AppContext.js [app-ssr] (ecmascript)");
 "use client";
 ;
@@ -571,27 +663,55 @@ const HealthInsights = ()=>{
         fertileWindow: [],
         irregularity: 0
     });
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const fetchInsights = async ()=>{
-            if (!token) return;
+            if (!token) {
+                setError("Authentication required");
+                return;
+            }
+            setLoading(true);
+            setError(null);
             try {
                 const res = await fetch("http://localhost:8080/api/insights/cycle", {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json"
                     }
                 });
-                if (res.ok) {
-                    const data = await res.json();
-                    setInsights({
-                        totalCycles: cycles.length,
-                        averageLength: data.averageCycleLength || 0,
-                        nextPeriod: data.nextPeriodPrediction || null,
-                        fertileWindow: data.fertileWindow || [],
-                        irregularity: data.irregularityIndex || 0
-                    });
+                if (res.status === 401) {
+                    setError("Session expired. Please log in again.");
+                    return;
                 }
+                if (!res.ok) {
+                    const errorData = await res.json().catch(()=>({}));
+                    throw new Error(errorData.message || `HTTP ${res.status}: Failed to fetch insights`);
+                }
+                const data = await res.json();
+                setInsights({
+                    totalCycles: cycles.length,
+                    averageLength: data.averageCycleLength || 0,
+                    nextPeriod: data.nextPeriodPrediction || null,
+                    fertileWindow: data.fertileWindow || [],
+                    irregularity: data.irregularityIndex || 0
+                });
             } catch (err) {
                 console.error("Failed to fetch insights:", err);
+                setError(err.message || "Failed to load insights data");
+                // Fallback to basic calculations from cycles data
+                if (cycles.length > 0) {
+                    const avgLength = cycles.reduce((sum, cycle)=>sum + cycle.length, 0) / cycles.length;
+                    setInsights({
+                        totalCycles: cycles.length,
+                        averageLength: avgLength,
+                        nextPeriod: null,
+                        fertileWindow: [],
+                        irregularity: 0
+                    });
+                }
+            } finally{
+                setLoading(false);
             }
         };
         fetchInsights();
@@ -599,10 +719,91 @@ const HealthInsights = ()=>{
         token,
         cycles
     ]);
-    const chartData = cycles.map((cycle)=>({
-            date: cycle.startDate,
+    // Prepare chart data
+    const chartData = cycles.map((cycle, index)=>({
+            cycle: `Cycle ${index + 1}`,
+            date: new Date(cycle.startDate).toLocaleDateString(),
             length: cycle.length
         }));
+    // Loading state
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                    className: "text-xl font-semibold mb-6 text-foreground",
+                    children: "Health Insights"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/HealthInsights.js",
+                    lineNumber: 102,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center justify-center py-12",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/HealthInsights.js",
+                        lineNumber: 106,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/HealthInsights.js",
+                    lineNumber: 105,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/components/HealthInsights.js",
+            lineNumber: 101,
+            columnNumber: 7
+        }, this);
+    }
+    // Error state
+    if (error) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                    className: "text-xl font-semibold mb-6 text-foreground",
+                    children: "Health Insights"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/HealthInsights.js",
+                    lineNumber: 116,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-red-800 dark:text-red-200 text-sm",
+                            children: error
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/HealthInsights.js",
+                            lineNumber: 120,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-red-600 dark:text-red-400 text-xs mt-2",
+                            children: "Showing basic calculations from your cycle data."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/HealthInsights.js",
+                            lineNumber: 121,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/components/HealthInsights.js",
+                    lineNumber: 119,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/components/HealthInsights.js",
+            lineNumber: 115,
+            columnNumber: 7
+        }, this);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
         children: [
@@ -611,227 +812,395 @@ const HealthInsights = ()=>{
                 children: "Health Insights"
             }, void 0, false, {
                 fileName: "[project]/src/app/components/HealthInsights.js",
-                lineNumber: 55,
+                lineNumber: 131,
                 columnNumber: 7
             }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "space-y-4",
+            cycles.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "text-center py-12",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "p-4 border border-light-text/20 dark:border-dark-text/20 rounded-md bg-light-bg/50 dark:bg-dark-bg/50",
+                        className: "text-6xl mb-4",
+                        children: "📊"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/HealthInsights.js",
+                        lineNumber: 137,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-foreground/80 text-lg mb-2",
+                        children: "No data to analyze yet"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/HealthInsights.js",
+                        lineNumber: 138,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-foreground/60 text-sm",
+                        children: "Track at least 2 cycles to see detailed health insights and predictions."
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/HealthInsights.js",
+                        lineNumber: 141,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/src/app/components/HealthInsights.js",
+                lineNumber: 136,
+                columnNumber: 9
+            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "space-y-6",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "p-4 border border-light-text/20 dark:border-dark-text/20 rounded-lg bg-light-bg/50 dark:bg-dark-bg/50",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-lg font-medium text-foreground mb-2",
+                                className: "text-lg font-medium text-foreground mb-3",
                                 children: "Cycle Summary"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 60,
-                                columnNumber: 11
+                                lineNumber: 150,
+                                columnNumber: 13
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-foreground mb-3",
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "grid grid-cols-1 md:grid-cols-2 gap-4",
                                 children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "Total Cycles Logged:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 64,
-                                        columnNumber: 13
-                                    }, this),
-                                    " ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: insights.totalCycles
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 65,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 63,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-foreground",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "Average Cycle Length:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 68,
-                                        columnNumber: 13
-                                    }, this),
-                                    " ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         children: [
-                                            insights.averageLength.toFixed(2),
-                                            " days"
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-foreground",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                                        children: "Total Cycles Logged:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 156,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    " ",
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-pink-500 font-bold",
+                                                        children: insights.totalCycles
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 157,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                                lineNumber: 155,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-foreground mt-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                                        children: "Average Cycle Length:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 162,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    " ",
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-pink-500 font-bold",
+                                                        children: [
+                                                            insights.averageLength.toFixed(1),
+                                                            " days"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 163,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                                lineNumber: 161,
+                                                columnNumber: 17
+                                            }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 69,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 67,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-foreground",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "Next Period Prediction:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 72,
-                                        columnNumber: 13
+                                        lineNumber: 154,
+                                        columnNumber: 15
                                     }, this),
-                                    " ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: insights.nextPeriod || "N/A"
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-foreground",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                                        children: "Next Period Prediction:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 170,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    " ",
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: "text-blue-500 font-bold",
+                                                        children: insights.nextPeriod || "Calculating..."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 171,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                                lineNumber: 169,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                className: "text-foreground mt-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
+                                                        children: "Irregularity Index:"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 176,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    " ",
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                        className: `font-bold ${insights.irregularity < 0.3 ? "text-green-500" : insights.irregularity < 0.6 ? "text-yellow-500" : "text-red-500"}`,
+                                                        children: insights.irregularity.toFixed(2)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                                        lineNumber: 177,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                                lineNumber: 175,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 73,
-                                        columnNumber: 13
+                                        lineNumber: 168,
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 71,
-                                columnNumber: 11
+                                lineNumber: 153,
+                                columnNumber: 13
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-foreground",
+                            insights.fertileWindow.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-foreground mt-3",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
                                         children: "Fertile Window:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 76,
-                                        columnNumber: 13
+                                        lineNumber: 194,
+                                        columnNumber: 17
                                     }, this),
                                     " ",
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: insights.fertileWindow.join(" to ") || "N/A"
+                                        className: "text-purple-500 font-bold",
+                                        children: insights.fertileWindow.join(" to ")
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 77,
-                                        columnNumber: 13
+                                        lineNumber: 195,
+                                        columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 75,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-foreground",
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("strong", {
-                                        children: "Irregularity Index:"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 80,
-                                        columnNumber: 13
-                                    }, this),
-                                    " ",
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        children: insights.irregularity.toFixed(2)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 81,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
-                                fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 79,
-                                columnNumber: 11
+                                lineNumber: 193,
+                                columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/HealthInsights.js",
-                        lineNumber: 59,
-                        columnNumber: 9
+                        lineNumber: 149,
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "p-4 border border-light-text/20 dark:border-dark-text/20 rounded-md bg-light-bg/50 dark:bg-dark-bg/50",
+                        className: "p-4 border border-light-text/20 dark:border-dark-text/20 rounded-lg bg-light-bg/50 dark:bg-dark-bg/50",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
-                                className: "text-lg font-medium text-foreground mb-2",
+                                className: "text-lg font-medium text-foreground mb-4",
                                 children: "Cycle Length Trend"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 85,
-                                columnNumber: 11
+                                lineNumber: 204,
+                                columnNumber: 13
                             }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$BarChart$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["BarChart"], {
-                                width: 600,
+                            chartData.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$ResponsiveContainer$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ResponsiveContainer"], {
+                                width: "100%",
                                 height: 300,
-                                data: chartData,
-                                children: [
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CartesianGrid"], {
-                                        strokeDasharray: "3 3"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 89,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
-                                        dataKey: "date"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 90,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {}, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 91,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {}, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 92,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {}, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 93,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
-                                        dataKey: "length",
-                                        fill: "#f472b6"
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/app/components/HealthInsights.js",
-                                        lineNumber: 94,
-                                        columnNumber: 13
-                                    }, this)
-                                ]
-                            }, void 0, true, {
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$chart$2f$BarChart$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["BarChart"], {
+                                    data: chartData,
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$CartesianGrid$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CartesianGrid"], {
+                                            strokeDasharray: "3 3",
+                                            stroke: "#374151"
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 210,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
+                                            dataKey: "cycle",
+                                            stroke: "#9CA3AF",
+                                            fontSize: 12
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 211,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
+                                            stroke: "#9CA3AF",
+                                            fontSize: 12
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 212,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
+                                            contentStyle: {
+                                                backgroundColor: "#1F2937",
+                                                border: "1px solid #374151",
+                                                borderRadius: "8px",
+                                                color: "#F3F4F6"
+                                            }
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 213,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Legend$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Legend"], {}, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 221,
+                                            columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
+                                            dataKey: "length",
+                                            fill: "#EC4899",
+                                            name: "Cycle Length (days)",
+                                            radius: [
+                                                4,
+                                                4,
+                                                0,
+                                                0
+                                            ]
+                                        }, void 0, false, {
+                                            fileName: "[project]/src/app/components/HealthInsights.js",
+                                            lineNumber: 222,
+                                            columnNumber: 19
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/src/app/components/HealthInsights.js",
+                                    lineNumber: 209,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
                                 fileName: "[project]/src/app/components/HealthInsights.js",
-                                lineNumber: 88,
-                                columnNumber: 11
+                                lineNumber: 208,
+                                columnNumber: 15
+                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "text-center py-8",
+                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                    className: "text-foreground/60",
+                                    children: "No chart data available"
+                                }, void 0, false, {
+                                    fileName: "[project]/src/app/components/HealthInsights.js",
+                                    lineNumber: 232,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                lineNumber: 231,
+                                columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/HealthInsights.js",
-                        lineNumber: 84,
-                        columnNumber: 9
+                        lineNumber: 203,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "p-4 border border-light-text/20 dark:border-dark-text/20 rounded-lg bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                className: "text-lg font-medium text-foreground mb-3",
+                                children: "💡 Health Tips"
+                            }, void 0, false, {
+                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                lineNumber: 239,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "space-y-2 text-sm",
+                                children: [
+                                    insights.averageLength < 21 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-orange-700 dark:text-orange-300",
+                                        children: "Your cycles are shorter than average. Consider consulting a healthcare provider."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                        lineNumber: 244,
+                                        columnNumber: 17
+                                    }, this),
+                                    insights.averageLength > 35 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-orange-700 dark:text-orange-300",
+                                        children: "Your cycles are longer than average. Consider consulting a healthcare provider."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                        lineNumber: 250,
+                                        columnNumber: 17
+                                    }, this),
+                                    insights.irregularity > 0.5 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-red-700 dark:text-red-300",
+                                        children: "Your cycles show high irregularity. Track stress, diet, and exercise patterns."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                        lineNumber: 256,
+                                        columnNumber: 17
+                                    }, this),
+                                    insights.irregularity <= 0.3 && insights.totalCycles > 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-green-700 dark:text-green-300",
+                                        children: "Great! Your cycles are quite regular. Keep up your healthy habits."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                        lineNumber: 262,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "text-gray-700 dark:text-gray-300",
+                                        children: "Regular tracking helps identify patterns and potential health concerns early."
+                                    }, void 0, false, {
+                                        fileName: "[project]/src/app/components/HealthInsights.js",
+                                        lineNumber: 267,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/src/app/components/HealthInsights.js",
+                                lineNumber: 242,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/src/app/components/HealthInsights.js",
+                        lineNumber: 238,
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/components/HealthInsights.js",
-                lineNumber: 58,
-                columnNumber: 7
+                lineNumber: 147,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/components/HealthInsights.js",
-        lineNumber: 54,
+        lineNumber: 130,
         columnNumber: 5
     }, this);
 };
@@ -902,18 +1271,102 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$utils$2f$cycle
 ;
 ;
 ;
-const CycleHistory = ({ cycles = [] })=>{
+const CycleHistory = ({ cycles = [], loading = false, error = null })=>{
     const prediction = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
         if (cycles.length < 2) return null;
-        const formattedHistory = cycles.map((cycle)=>({
-                startDate: cycle.startDate,
-                length: cycle.length
-            }));
-        const predictor = new __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$utils$2f$cyclePredictor$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["EnhancedCyclePredictor"](formattedHistory);
-        return predictor.predictNextCycle();
+        try {
+            const formattedHistory = cycles.map((cycle)=>({
+                    startDate: cycle.startDate,
+                    length: cycle.length
+                }));
+            const predictor = new __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$app$2f$utils$2f$cyclePredictor$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["EnhancedCyclePredictor"](formattedHistory);
+            return predictor.predictNextCycle();
+        } catch (err) {
+            console.error("Error predicting cycle:", err);
+            return null;
+        }
     }, [
         cycles
     ]);
+    // Loading state
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                    className: "text-xl font-semibold mb-4 text-foreground",
+                    children: "Cycle History"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/CycleHistory.js",
+                    lineNumber: 28,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center justify-center py-12",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleHistory.js",
+                        lineNumber: 32,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/CycleHistory.js",
+                    lineNumber: 31,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/components/CycleHistory.js",
+            lineNumber: 27,
+            columnNumber: 7
+        }, this);
+    }
+    // Error state
+    if (error) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                    className: "text-xl font-semibold mb-4 text-foreground",
+                    children: "Cycle History"
+                }, void 0, false, {
+                    fileName: "[project]/src/app/components/CycleHistory.js",
+                    lineNumber: 42,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-red-800 dark:text-red-200 text-sm",
+                            children: error
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/CycleHistory.js",
+                            lineNumber: 46,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                            className: "text-red-600 dark:text-red-400 text-xs mt-2",
+                            children: "Please try refreshing the page or contact support if the problem persists."
+                        }, void 0, false, {
+                            fileName: "[project]/src/app/components/CycleHistory.js",
+                            lineNumber: 47,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/src/app/components/CycleHistory.js",
+                    lineNumber: 45,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/src/app/components/CycleHistory.js",
+            lineNumber: 41,
+            columnNumber: 7
+        }, this);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "flex-1 bg-background p-6 rounded-lg shadow-md transition-colors duration-300 ease h-full",
         children: [
@@ -922,7 +1375,7 @@ const CycleHistory = ({ cycles = [] })=>{
                 children: "Cycle History"
             }, void 0, false, {
                 fileName: "[project]/src/app/components/CycleHistory.js",
-                lineNumber: 21,
+                lineNumber: 58,
                 columnNumber: 7
             }, this),
             prediction && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -933,7 +1386,7 @@ const CycleHistory = ({ cycles = [] })=>{
                         children: "Cycle Prediction"
                     }, void 0, false, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 27,
+                        lineNumber: 64,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -943,7 +1396,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 children: "Next Start Date:"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 31,
+                                lineNumber: 68,
                                 columnNumber: 13
                             }, this),
                             " ",
@@ -951,7 +1404,7 @@ const CycleHistory = ({ cycles = [] })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 30,
+                        lineNumber: 67,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -961,7 +1414,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 children: "Confidence Range:"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 34,
+                                lineNumber: 71,
                                 columnNumber: 13
                             }, this),
                             " ",
@@ -972,7 +1425,7 @@ const CycleHistory = ({ cycles = [] })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 33,
+                        lineNumber: 70,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -982,7 +1435,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 children: "Average Cycle Length:"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 39,
+                                lineNumber: 76,
                                 columnNumber: 13
                             }, this),
                             " ",
@@ -991,7 +1444,7 @@ const CycleHistory = ({ cycles = [] })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 38,
+                        lineNumber: 75,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1001,7 +1454,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 children: "Irregularity Index:"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 43,
+                                lineNumber: 80,
                                 columnNumber: 13
                             }, this),
                             " ",
@@ -1009,13 +1462,13 @@ const CycleHistory = ({ cycles = [] })=>{
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 42,
+                        lineNumber: 79,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/components/CycleHistory.js",
-                lineNumber: 26,
+                lineNumber: 63,
                 columnNumber: 9
             }, this),
             cycles.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1030,14 +1483,14 @@ const CycleHistory = ({ cycles = [] })=>{
                                         children: "Start Date: "
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleHistory.js",
-                                        lineNumber: 58,
+                                        lineNumber: 95,
                                         columnNumber: 17
                                     }, this),
                                     new Date(cycle.startDate).toLocaleDateString()
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 57,
+                                lineNumber: 94,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1047,7 +1500,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                         children: "Cycle Length:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleHistory.js",
-                                        lineNumber: 62,
+                                        lineNumber: 99,
                                         columnNumber: 17
                                     }, this),
                                     " ",
@@ -1056,7 +1509,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 61,
+                                lineNumber: 98,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1066,7 +1519,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                         children: "Symptoms:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleHistory.js",
-                                        lineNumber: 65,
+                                        lineNumber: 102,
                                         columnNumber: 17
                                     }, this),
                                     " ",
@@ -1074,7 +1527,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 64,
+                                lineNumber: 101,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1084,7 +1537,7 @@ const CycleHistory = ({ cycles = [] })=>{
                                         children: "Mood:"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/components/CycleHistory.js",
-                                        lineNumber: 68,
+                                        lineNumber: 105,
                                         columnNumber: 17
                                     }, this),
                                     " ",
@@ -1092,41 +1545,72 @@ const CycleHistory = ({ cycles = [] })=>{
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/components/CycleHistory.js",
-                                lineNumber: 67,
+                                lineNumber: 104,
                                 columnNumber: 15
                             }, this)
                         ]
-                    }, index, true, {
+                    }, cycle.ID || index, true, {
                         fileName: "[project]/src/app/components/CycleHistory.js",
-                        lineNumber: 51,
+                        lineNumber: 88,
                         columnNumber: 13
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/src/app/components/CycleHistory.js",
-                lineNumber: 49,
+                lineNumber: 86,
                 columnNumber: 9
-            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                className: "text-foreground/80",
-                children: "No cycles logged yet."
-            }, void 0, false, {
+            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "text-center py-12",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-6xl mb-4",
+                        children: "📅"
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleHistory.js",
+                        lineNumber: 112,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-foreground/80 text-lg mb-2",
+                        children: "No cycles logged yet."
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleHistory.js",
+                        lineNumber: 113,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "text-foreground/60 text-sm",
+                        children: "Start tracking your cycles to see your history and predictions here."
+                    }, void 0, false, {
+                        fileName: "[project]/src/app/components/CycleHistory.js",
+                        lineNumber: 116,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
                 fileName: "[project]/src/app/components/CycleHistory.js",
-                lineNumber: 74,
+                lineNumber: 111,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/components/CycleHistory.js",
-        lineNumber: 20,
+        lineNumber: 57,
         columnNumber: 5
     }, this);
 };
 CycleHistory.propTypes = {
     cycles: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].arrayOf(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].shape({
+        ID: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].oneOfType([
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].string,
+            __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].number
+        ]),
         startDate: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].string.isRequired,
         length: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].number.isRequired,
         symptoms: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].string,
         mood: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].string
-    })).isRequired
+    })).isRequired,
+    loading: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].bool,
+    error: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$prop$2d$types$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].string
 };
 const __TURBOPACK__default__export__ = CycleHistory;
 }}),

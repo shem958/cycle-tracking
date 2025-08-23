@@ -51,38 +51,72 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jwt$2d$decod
 // Create the context
 const AppContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createContext"])();
 const AppProvider = ({ children })=>{
-    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null); // Store logged-in user
-    const [token, setToken] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null); // Auth token
+    const [user, setUser] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [token, setToken] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [cycles, setCycles] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [moods, setMoods] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [symptoms, setSymptoms] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    // Check if token is expired
+    const isTokenExpired = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((token)=>{
+        if (!token) return true;
+        try {
+            const decoded = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jwt$2d$decode$2f$build$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jwtDecode"])(token);
+            const currentTime = Date.now() / 1000;
+            return decoded.exp < currentTime;
+        } catch  {
+            return true;
+        }
+    }, []);
+    // Clear authentication state
+    const clearAuth = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
+        setUser(null);
+        setToken(null);
+        setCycles([]);
+        setMoods([]);
+        setSymptoms([]);
+        localStorage.removeItem("token");
+    }, []);
     // Load token and user on app mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         const savedToken = localStorage.getItem("token");
-        if (savedToken) {
-            try {
-                const decoded = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jwt$2d$decode$2f$build$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jwtDecode"])(savedToken);
-                setToken(savedToken);
-                setUser({
-                    id: decoded.id,
-                    username: decoded.username,
-                    role: decoded.role
-                });
-                fetchUser(savedToken);
-            } catch  {
-                setToken(null);
-                localStorage.removeItem("token");
-            }
+        if (!savedToken || isTokenExpired(savedToken)) {
+            clearAuth();
+            return;
         }
-    }, []);
+        try {
+            const decoded = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jwt$2d$decode$2f$build$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jwtDecode"])(savedToken);
+            setToken(savedToken);
+            setUser({
+                id: decoded.id,
+                username: decoded.username,
+                role: decoded.role
+            });
+            // Fetch additional user data
+            fetchUser(savedToken);
+        } catch (err) {
+            console.error("Error decoding token:", err);
+            clearAuth();
+        }
+    }, [
+        isTokenExpired,
+        clearAuth
+    ]);
+    // Fetch user profile data
     const fetchUser = async (authToken)=>{
         try {
             const res = await fetch("http://localhost:8080/api/profile", {
                 headers: {
-                    Authorization: `Bearer ${authToken}`
+                    Authorization: `Bearer ${authToken}`,
+                    "Content-Type": "application/json"
                 }
             });
+            if (res.status === 401) {
+                // Token is invalid
+                clearAuth();
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setUser((prev)=>({
@@ -90,63 +124,170 @@ const AppProvider = ({ children })=>{
                         ...data
                     }));
             } else {
-                setToken(null);
-                localStorage.removeItem("token");
+                console.error("Failed to fetch user profile:", res.status);
             }
         } catch (err) {
             console.error("Failed to fetch user:", err);
         }
     };
     // Fetch cycles from backend
-    const fetchCycles = async ()=>{
-        if (!token) return;
+    const fetchCycles = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async ()=>{
+        if (!token || isTokenExpired(token)) {
+            clearAuth();
+            return;
+        }
         setLoading(true);
+        setError(null);
         try {
             const res = await fetch("http://localhost:8080/api/cycles", {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json"
                 }
             });
+            if (res.status === 401) {
+                clearAuth();
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
-                setCycles(data);
+                setCycles(Array.isArray(data) ? data : []);
+            } else {
+                const errorData = await res.json().catch(()=>({}));
+                throw new Error(errorData.message || `HTTP ${res.status}: Failed to fetch cycles`);
             }
         } catch (err) {
             console.error("Failed to fetch cycles:", err);
+            setError(err.message || "Failed to load cycle data");
+            setCycles([]); // Set empty array on error
         } finally{
             setLoading(false);
         }
-    };
-    const logout = ()=>{
-        setUser(null);
-        setToken(null);
-        setCycles([]);
-        localStorage.removeItem("token");
+    }, [
+        token,
+        isTokenExpired,
+        clearAuth
+    ]);
+    // Login function
+    const login = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(async (credentials)=>{
+        setLoading(true);
+        setError(null);
+        try {
+            const res = await fetch("http://localhost:8080/api/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(credentials)
+            });
+            if (!res.ok) {
+                const errorData = await res.json().catch(()=>({}));
+                throw new Error(errorData.message || "Login failed");
+            }
+            const data = await res.json();
+            if (!data.token) {
+                throw new Error("No authentication token received");
+            }
+            // Store token
+            localStorage.setItem("token", data.token);
+            setToken(data.token);
+            // Decode and set user
+            const decoded = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jwt$2d$decode$2f$build$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jwtDecode"])(data.token);
+            const userData = {
+                id: decoded.id,
+                username: decoded.username,
+                role: decoded.role
+            };
+            setUser(userData);
+            return {
+                success: true,
+                user: userData
+            };
+        } catch (err) {
+            console.error("Login error:", err);
+            setError(err.message);
+            return {
+                success: false,
+                error: err.message
+            };
+        } finally{
+            setLoading(false);
+        }
+    }, []);
+    // Logout function
+    const logout = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])(()=>{
+        clearAuth();
+        // Optionally redirect to login page
+        if ("TURBOPACK compile-time falsy", 0) {
+            "TURBOPACK unreachable";
+        }
+    }, [
+        clearAuth
+    ]);
+    // Auto-fetch cycles when user logs in
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (token && user) {
+            fetchCycles();
+        }
+    }, [
+        token,
+        user,
+        fetchCycles
+    ]);
+    // Set up token expiration check
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (!token) return;
+        const checkTokenExpiration = ()=>{
+            if (isTokenExpired(token)) {
+                logout();
+            }
+        };
+        // Check every 5 minutes
+        const interval = setInterval(checkTokenExpiration, 5 * 60 * 1000);
+        return ()=>clearInterval(interval);
+    }, [
+        token,
+        isTokenExpired,
+        logout
+    ]);
+    const contextValue = {
+        // State
+        user,
+        setUser,
+        token,
+        setToken,
+        cycles,
+        setCycles,
+        moods,
+        setMoods,
+        symptoms,
+        setSymptoms,
+        loading,
+        error,
+        // Actions
+        fetchCycles,
+        login,
+        logout,
+        clearAuth,
+        // Utilities
+        isTokenExpired: (t = token)=>isTokenExpired(t)
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AppContext.Provider, {
-        value: {
-            user,
-            setUser,
-            token,
-            setToken,
-            cycles,
-            setCycles,
-            moods,
-            setMoods,
-            symptoms,
-            setSymptoms,
-            loading,
-            fetchCycles,
-            logout
-        },
+        value: contextValue,
         children: children
     }, void 0, false, {
         fileName: "[project]/src/app/context/AppContext.js",
-        lineNumber: 81,
+        lineNumber: 246,
         columnNumber: 5
     }, this);
 };
-const useAppContext = ()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useContext"])(AppContext);
+const useAppContext = ()=>{
+    const context = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useContext"])(AppContext);
+    if (context === undefined) {
+        throw new Error("useAppContext must be used within an AppProvider");
+    }
+    return context;
+};
 }}),
 "[project]/src/app/components/ThemeToggle.js [app-ssr] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
