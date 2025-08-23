@@ -69,7 +69,7 @@ export default function ProtectedRoute({ children, allowedRoles }) {
             Access Denied
           </h2>
           <p className="text-foreground/70">
-            You don't have permission to access this page.
+            You don&apos;t have permission to access this page.
           </p>
         </div>
       </div>
