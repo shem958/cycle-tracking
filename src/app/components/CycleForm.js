@@ -5,7 +5,7 @@ import { useAppContext } from "../context/AppContext";
 import { useForm } from "react-hook-form";
 
 const CycleForm = () => {
-  const { cycles, setCycles, fetchCycles, token } = useAppContext();
+  const { cycles, fetchCycles, token } = useAppContext();
   const {
     register,
     handleSubmit,
