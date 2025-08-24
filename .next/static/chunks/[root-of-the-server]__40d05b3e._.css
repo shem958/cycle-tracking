@@ -332,6 +332,10 @@ img, video {
   margin-left: .5rem;
 }
 
+.ml-4 {
+  margin-left: 1rem;
+}
+
 .mr-2 {
   margin-right: .5rem;
 }
