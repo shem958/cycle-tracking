@@ -52,14 +52,7 @@ It is designed for:
 
 ## 🖼️ Screenshots (Preview)
 
-> _(Add screenshots here to visually showcase your app — home page, cycle tracking form, pregnancy dashboard, etc.)_  
 
-- **Cycle Logging Form** 📝  
-- **Health Insights Dashboard** 📊  
-- **Pregnancy Checkup Tracker** 🩺  
-- **Community Feed** 💬  
-
----
 
 ## 🛠️ Tech Stack
 
