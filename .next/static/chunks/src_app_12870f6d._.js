@@ -183,7 +183,7 @@ function PostpartumDashboard() {
             const fetchPostpartumData = {
                 "PostpartumDashboard.useEffect.fetchPostpartumData": async ()=>{
                     try {
-                        const res = await fetch("http://localhost:8080/api/postpartum", {
+                        const res = await fetch("http://localhost:8080/api/postpartum/", {
                             headers: {
                                 Authorization: `Bearer ${token}`
                             }
