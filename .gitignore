@@ -4,3 +4,5 @@ cycles.db
 *.db-journal
 
 node_modules
+.next
+.idea
